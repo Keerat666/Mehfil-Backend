@@ -22,8 +22,8 @@ exports.create_post = (req, res, next) => {
       type: "text",
       createdAt: Date.now(),
       createdBy: {
-        userId: req.userData.userId,
-        name: req.userData.name
+        userId: req.body.createdBy.userId,
+        name: req.body.createdBy.name
       }
     })
 
