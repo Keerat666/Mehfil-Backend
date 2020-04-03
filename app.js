@@ -13,21 +13,20 @@ const profileRoutes = require("./api/routes/profile")
 
 // Mongoose Connection
 mongoose
-  .connect(
-    `mongodb+srv://mehfil:${process.env.MONGO_ATLAS_PWD}@mehfil-bszvw.mongodb.net/mehfil?retryWrites=true&w=majority`,
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    }
-  )
-  .catch(error => console.error(error))
+    .connect(
+        `mongodb://keerat:password1@ds237955.mlab.com:37955/heroku_cc6m2xks`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: false
+        }
+    )
+    .catch(error => console.error(error))
 
 var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
-  flags: "a"
-})
-// Morgan for logging all requests
+        flags: "a"
+    })
+    // Morgan for logging all requests
 app.use(morgan("combined", { stream: accessLogStream }))
 
 // Set static files and folders
@@ -39,24 +38,24 @@ app.use(bodyParser.json())
 
 // CORS Options
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header(
-    "Access-Control-Allow-Header",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  )
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET")
-    return res.status(200).json({})
-  }
-  next()
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header(
+        "Access-Control-Allow-Header",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    )
+    if (req.method === "OPTIONS") {
+        res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET")
+        return res.status(200).json({})
+    }
+    next()
 })
 
 // Routes
 app.get("/", (req, res, next) =>
-  res
+    res
     .status(200)
     .send(
-      "Hello there! You have come this far but you won't be able to proceed further"
+        "Hello there! You have come this far but you won't be able to proceed further"
     )
 )
 app.use("/user", userRoutes)
@@ -65,17 +64,17 @@ app.use("/profile", profileRoutes)
 
 // Response for unavailable routes
 app.use((req, res, next) => {
-  const error = new Error("Not found")
-  error.status = 404
-  next(error)
+    const error = new Error("Not found")
+    error.status = 404
+    next(error)
 })
 app.use((error, req, res, next) => {
-  res.status(error.status || 500)
-  res.json({
-    error: {
-      message: error.message
-    }
-  })
+    res.status(error.status || 500)
+    res.json({
+        error: {
+            message: error.message
+        }
+    })
 })
 
 module.exports = app
