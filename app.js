@@ -55,7 +55,8 @@ app.get("/", (req, res, next) =>
     res
     .status(200)
     .send(
-        "Hello there! You have come this far but you won't be able to proceed further"
+        "Hello there! You have come this far but you won't be able to proceed further" + req.body.name.firstName
+
     )
 )
 app.use("/user", userRoutes)
