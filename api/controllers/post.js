@@ -255,7 +255,7 @@ exports.get_all_posts = (req, res, next) => {
 
 exports.like_post = (req, res, next) => {
     const like = {
-        likedBy: req.userData.userId,
+        likedBy: req.body.userId,
         likedAt: Date.now()
     }
     Post.findByIdAndUpdate(
