@@ -255,9 +255,11 @@ exports.get_all_posts = (req, res, next) => {
 
 exports.like_post = (req, res, next) => {
     const like = {
-        likedBy: req.body.userId,
-        likedAt: Date.now()
-    }
+            likedBy: req.body.userId,
+            likedAt: Date.now()
+        }
+        //TODO check if the user id has already liked the post if yes throw error
+
     Post.findByIdAndUpdate(
             req.params.postId, { $push: { likes: like } }, { new: true }
         )
@@ -284,8 +286,8 @@ exports.comment_post = (req, res, next) => {
         body: req.body.body,
         createdAt: Date.now(),
         createdBy: {
-            userId: req.userData.userId,
-            name: req.userData.name
+            userId: req.body.userId,
+            name: req.body.name
         }
     })
 
