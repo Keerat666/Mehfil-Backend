@@ -12,6 +12,6 @@ router.get("/", PostController.get_all_posts2)
 router.post("/:postId/like", checkAuth, PostController.like_post)
 router.post("/:postId/comment", checkAuth, PostController.comment_post)
 router.post("/:commentId/reply", checkAuth, PostController.reply_to_comment)
-router.post("/:commentId/like", checkAuth, PostController.like_comment)
+router.post("/:commentId/like_comment", checkAuth, PostController.like_comment)
 
 module.exports = router

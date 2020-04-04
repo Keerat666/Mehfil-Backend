@@ -280,65 +280,65 @@ exports.like_post = (req, res, next) => {
 }
 
 exports.comment_post = (req, res, next) => {
-    const comment = new Comment({
-        _id: new mongoose.Types.ObjectId(),
-        postId: req.params.postId,
-        body: req.body.body,
-        createdAt: Date.now(),
-        createdBy: {
-            userId: req.body.userId,
-            name: req.body.name
-        }
-    })
+        const comment = new Comment({
+            _id: new mongoose.Types.ObjectId(),
+            postId: req.params.postId,
+            body: req.body.body,
+            createdAt: Date.now(),
+            createdBy: {
+                userId: req.body.userId,
+                name: req.body.name
+            }
+        })
 
-    comment
-        .save()
-        .then(comment => {
-            console.log(comment)
-            Post.findByIdAndUpdate(
-                    comment.postId, { $push: { comments: comment._id } }, { new: true }
-                )
-                .exec()
-                .then(post => {
-                    console.log(post)
-                    res.status(201).json({
-                        message: "commented successfully",
-                        comment: {
-                            _id: comment._id,
-                            postId: comment.postId,
-                            createdAt: comment.createdAt,
-                            createdBy: comment.createdBy
-                        }
+        comment
+            .save()
+            .then(comment => {
+                console.log(comment)
+                Post.findByIdAndUpdate(
+                        comment.postId, { $push: { comments: comment._id } }, { new: true }
+                    )
+                    .exec()
+                    .then(post => {
+                        console.log(post)
+                        res.status(201).json({
+                            message: "commented successfully",
+                            comment: {
+                                _id: comment._id,
+                                postId: comment.postId,
+                                createdAt: comment.createdAt,
+                                createdBy: comment.createdBy
+                            }
+                        })
                     })
-                })
-                .catch(err => {
-                    console.log(err)
-                    Comment.findByIdAndDelete(comment._id)
-                        .exec()
-                        .then(deletedComment => {
-                            console.log(deletedComment)
-                            res.status(500).json({
-                                message: "failed comment deleted"
+                    .catch(err => {
+                        console.log(err)
+                        Comment.findByIdAndDelete(comment._id)
+                            .exec()
+                            .then(deletedComment => {
+                                console.log(deletedComment)
+                                res.status(500).json({
+                                    message: "failed comment deleted"
+                                })
                             })
-                        })
-                        .catch(err => {
-                            console.log(err)
-                            res.status(500).json({
-                                message: "failed to comment",
-                                error: err
+                            .catch(err => {
+                                console.log(err)
+                                res.status(500).json({
+                                    message: "failed to comment",
+                                    error: err
+                                })
                             })
-                        })
-                })
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                message: "failed to comment on post",
-                error: err
+                    })
             })
-        })
-}
-
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                    message: "failed to comment on post",
+                    error: err
+                })
+            })
+    }
+    //TODO Fix Later as the comment id is not getting added to replies[]
 exports.reply_to_comment = (req, res, next) => {
     const comment = new Comment({
         _id: new mongoose.Types.ObjectId(),
