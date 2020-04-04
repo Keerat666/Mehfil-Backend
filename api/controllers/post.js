@@ -345,8 +345,8 @@ exports.reply_to_comment = (req, res, next) => {
         body: req.body.body,
         createdAt: Date.now(),
         createdBy: {
-            userId: req.userData.userId,
-            name: req.userData.name
+            userId: req.body.userId,
+            name: req.body.name
         }
     })
 
@@ -400,7 +400,7 @@ exports.reply_to_comment = (req, res, next) => {
 
 exports.like_comment = (req, res, next) => {
     const like = {
-        likedBy: req.userData.userId,
+        likedBy: req.body.userId,
         likedAt: Date.now()
     }
     Comment.findByIdAndUpdate(
