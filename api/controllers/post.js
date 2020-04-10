@@ -259,7 +259,7 @@ exports.like_post = (req, res, next) => {
             likedAt: Date.now()
         }
         //TODO check if the user id has already liked the post if yes throw error
-
+    
     Post.findByIdAndUpdate(
             req.params.postId, { $push: { likes: like } }, { new: true }
         )
@@ -438,3 +438,81 @@ exports.get_all_posts2 = (req, res, next) => {
             })
         })
 }
+
+exports.getComments = (req, res, next) => {
+    Comment.find({$and:[{"postId" : req.params.postId}]})
+    .lean()
+    .exec((err, result) => {
+        if (err){
+            res.send(err)
+        }else{
+            res.send(result)
+        }
+    })
+}
+
+exports.getPostByUser = (req, res, next) => {
+    Post.find({$and:[{"userId" : req.params.postId}]})
+    .lean()
+    .exec((err, result) => {
+        if (err){
+            res.send(err)
+        }else{
+            res.send(result)
+        }
+    })
+}
+
+exports.savePost = (req, res, next) => {
+    const saved = {
+        savedBy: req.body.userId,
+        savedAt: Date.now()
+    }
+    Post.findByIdAndUpdate(
+        req.params.postId, {$push: {saved: saved}}, {new: true}
+    )
+    .exec()
+    .then(post=>{
+        console.log(post)
+        res.status(200).json({
+            message:"post saved succesfully"
+        })
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            message:"failed",
+            error : err
+        })
+    })
+}
+
+exports.reportPost = (req, res, next) => {
+    const reported = {
+        reportedBy : req.body.userId,
+        reportedAt : Date.now(),
+        reportedFor : req.body.for
+    }
+
+    Post.findByIdAndUpdate(
+        req.params.postId, {$push: {saved:saved}}, {new: true}
+    )
+    .exec()
+    .then(post =>{
+        console.log(post)
+        res.status(200).json({
+            message: "reported"
+        })
+    })
+    .catch(err =>{
+        res.status(500).json({
+            message:"failed",
+            error:err
+        })
+    })
+}
+
+exports.getSavedPost = (req, res, next) => {
+
+}
+

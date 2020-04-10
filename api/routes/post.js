@@ -13,5 +13,9 @@ router.post("/:postId/like", checkAuth, PostController.like_post)
 router.post("/:postId/comment", checkAuth, PostController.comment_post)
 router.post("/:commentId/reply", checkAuth, PostController.reply_to_comment)
 router.post("/:commentId/like_comment", checkAuth, PostController.like_comment)
-
+router.get("/comments/:postId", checkAuth, PostController.getComments)
+router.get("/:userId", checkAuth, PostController.getPostByUser)
+router.post("/save/:postId/:userId", checkAuth, PostController.savePost)
+router.post("/report/:postId/:userId", checkAuth, PostController.reportPost)
+router.get("/savedpost/:userId", checkAuth, PostController.getSavedPost)
 module.exports = router

@@ -24,6 +24,12 @@ const postSchema = mongoose.Schema({
       likedAt: { type: Number }
     }
   ],
+  saved: [
+    {
+      savedBy: mongoose.Schema.Types.ObjectId,
+      savedAt: { type: Number }
+    }
+  ],
   comments: []
 });
 
