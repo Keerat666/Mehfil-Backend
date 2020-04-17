@@ -69,7 +69,8 @@ exports.user_signup_google = (req, res, next) => {
           },
           provider: "google",
           providerId: req.body.providerId,
-          email: req.body.email
+          email: req.body.email,
+          description : req.body.description
         })
         user
           .save()
@@ -253,6 +254,59 @@ exports.user_login_facebook = (req, res, next) => {
         error: err
       })
     })
+}
+
+exports.follow = (req, res, next) => {
+  const followed = {
+    followedBy : req.params.followerId,
+    followedAt : Date.now(),
+}
+  User.findByIdAndUpdate(
+    req.params.userId, {$push:{followers:followed}}, {new:true}
+    )
+    .exec()
+    .then(user =>{
+      console.log(user)
+      res.status(200).json({
+        message:"followed"
+      })
+    })
+    .catch(err =>{
+      console.log(err)
+      res.status(500).json({
+        message:"Failed",
+        error:err
+      })
+    }) 
+
+}
+
+exports.following = (req, res, next) => {
+  User.find(
+    {$and:[{"followers.followedBy" : req.params.userId}]}
+  )
+  .lean()
+  .exec((err, result) => {
+    if(err){
+      res.send(err)
+    }else{
+      res.send(result)
+    }
+  })
+}
+
+exports.followers = (req, res, next) => {
+  User.find(
+    {"userId":req.params.userId}
+  )
+  .lean()
+  .exec((err, result) => {
+    if(err){
+      res.send(err)
+    }else{
+      res.send(result)
+    }
+  })
 }
 
 /*

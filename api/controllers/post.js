@@ -465,7 +465,7 @@ exports.getPostByUser = (req, res, next) => {
 
 exports.savePost = (req, res, next) => {
     const saved = {
-        savedBy: req.body.userId,
+        savedBy: req.params.userId,
         savedAt: Date.now()
     }
     Post.findByIdAndUpdate(
@@ -495,7 +495,7 @@ exports.reportPost = (req, res, next) => {
     }
 
     Post.findByIdAndUpdate(
-        req.params.postId, {$push: {saved:saved}}, {new: true}
+        req.params.postId, {$push: {report:reported}}, {new: true}
     )
     .exec()
     .then(post =>{
@@ -513,6 +513,14 @@ exports.reportPost = (req, res, next) => {
 }
 
 exports.getSavedPost = (req, res, next) => {
-
+    Post.find({$and:[{"saved.savedBy" : req.params.userId}]})
+    .lean()
+    .exec((err, result) => {
+        if (err){
+            res.send(err)
+        }else{
+            res.send(result)
+        }
+    })
 }
 

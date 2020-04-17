@@ -27,7 +27,7 @@ const postSchema = mongoose.Schema({
   saved: [
     {
       savedBy: mongoose.Schema.Types.ObjectId,
-      savedAt: { type: Number }
+      savedAt: { type: Date, default: Date.now() }
     }
   ],
   comments: []

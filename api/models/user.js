@@ -18,7 +18,7 @@ const userSchema = mongoose.Schema({
   dob: { type: Number },
   description: { type: String },
   followers: [],
-  following: []
+  following: [],
 })
 
 module.exports = mongoose.model("User", userSchema)
