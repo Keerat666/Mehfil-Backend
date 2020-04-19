@@ -18,12 +18,7 @@ const postSchema = mongoose.Schema({
       lastName: { type: String }
     }
   },
-  likes: [
-    {
-      likedBy: mongoose.Schema.Types.ObjectId,
-      likedAt: { type: Number }
-    }
-  ],
+  likes: [],
   saved: [
     {
       savedBy: mongoose.Schema.Types.ObjectId,

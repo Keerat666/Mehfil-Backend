@@ -7,6 +7,7 @@ const multer = require("../middlewares/multer")
 
 router.post("/", checkAuth, multer.single("postMedia"), PostController.create_post)
 router.patch("/:postId", checkAuth, multer.single("postMedia"), PostController.update_post)
+router.post("/image/:postId", checkAuth, multer.single("postMedia"), PostController.upload_file)
 router.delete("/:postId", checkAuth, PostController.delete_post)
 router.get("/", PostController.get_all_posts2)
 router.post("/:postId/like", checkAuth, PostController.like_post)

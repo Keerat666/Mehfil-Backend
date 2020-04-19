@@ -6,6 +6,7 @@ const storage = multer.diskStorage({
     cb(null, "./uploads/")
   },
   fileFilter: (req, file, cb) => {
+    console.log(file)
     const fileTypes = /jpeg|jpg|png|mp4|flv/
     const extName = fileTypes.test(
       path.extname(file.originalname).toLowerCase()

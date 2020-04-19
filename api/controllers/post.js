@@ -7,6 +7,9 @@ var probe = require("probe-image-size")
 const Post = require("../models/post")
 const Comment = require("../models/comment")
 
+const cloudinary = require("./cloudinary")
+const multer = require("../middlewares/multer")
+
 exports.create_post = (req, res, next) => {
     console.log("user data", req.userData)
     console.log("file", req.file)
@@ -109,18 +112,18 @@ exports.create_post = (req, res, next) => {
                 })
         } else if (videoExtTypes) {
             console.log("Video type true")
-            fs.open(req.file.path, "r", function(err, fd) {
+            fs.open(req.file.path, "r", function (err, fd) {
                 try {
                     let movie = VideoLib.MovieParser.parse(fd)
                     console.log("movie width:", movie.tracks[0].width)
                     console.log("movie width:", movie.tracks[0].height)
                     console.log(
-                            "aspect ratio:",
-                            movie.tracks[0].width / movie.tracks[0].height
-                        )
-                        // Work with movie
-                        // console.log("movie width:", movie.tracks["VideoTrack"].width)
-                        // console.log("movie height:", movie.tracks[0].height)
+                        "aspect ratio:",
+                        movie.tracks[0].width / movie.tracks[0].height
+                    )
+                    // Work with movie
+                    // console.log("movie width:", movie.tracks["VideoTrack"].width)
+                    // console.log("movie height:", movie.tracks[0].height)
                     post = new Post({
                         _id: new mongoose.Types.ObjectId(),
                         body: req.body.body,
@@ -166,6 +169,61 @@ exports.create_post = (req, res, next) => {
             })
         }
     }
+}
+
+
+exports.upload_file = async (req, res, next) => {
+
+    const { path } = req.file;
+    console.log(path)
+    let uploadedObject = {
+    };
+
+    try {
+
+        uploadedObject = await cloudinary.uploads(path, 'Images');
+        console.log(uploadedObject);
+
+    } catch (e) {
+
+        res.send("Clouinary upload failed" + e);
+    }
+
+    console.log(uploadedObject);
+
+    let options = {
+        media: uploadedObject.url
+    }
+
+    Post.update({ '_id': req.params.postId }, options, (err, result) => {
+
+        if (err) {
+
+            console.log(err);
+
+            res.send("Internal server error");
+        } else {
+
+            Post.findOne({ '_id': req.params.postId }, (err2, res2) => {
+
+                console.log("err2 is " + err2);
+                console.log(res2);
+
+                res.send(res2);
+            })
+        }
+    });
+
+    fs.unlink(path, (err, result) => {
+        if (err){
+            console.log(err)
+        }
+        else{
+            
+        }
+    })
+
+
 }
 
 exports.update_post = (req, res, next) => {
@@ -254,91 +312,146 @@ exports.get_all_posts = (req, res, next) => {
 }
 
 exports.like_post = (req, res, next) => {
-    const like = {
-            likedBy: req.body.userId,
-            likedAt: Date.now()
+
+    let findMyPost = () => {
+
+        return new Promise((resolve, reject) => {
+
+            Post.findOne({ '_id': req.params.postId })
+                .lean()
+                .exec((err, obtainedPost) => {
+
+                    if (err) { } else {
+
+                        let alreadyLiked = false;
+
+                        console.log(obtainedPost.likes);
+
+                        obtainedPost.likes.map((singleLike) => {
+
+                            if (`${singleLike.likedBy}` == req.body.userId) {
+
+                                alreadyLiked = true;
+                            } else {
+
+                            }
+                        }); //end map
+
+
+                        if (alreadyLiked == true) {
+
+                            reject("User already liked");
+                        } else {
+
+                            resolve("success");
+                        }
+                    }
+                }); //end post find
+        }); //end promise
+    }
+
+    let updateLikes = (successMessage) => {
+
+        return new Promise((resolve, reject) => {
+
+            const like = {
+                likedBy: req.body.userId,
+                likedAt: Date.now()
+            }
+
+            Post.findByIdAndUpdate(
+                req.params.postId, { $push: { likes: like } }, { new: true }
+            )
+                .exec()
+                .then(post => {
+                    console.log(post)
+                    resolve("liked successfully")
+                })
+                .catch(err => {
+                    console.log(err);
+                    reject("already liked or error")
+                })
+        })
+    }
+
+    findMyPost()
+        .then(updateLikes)
+        .then((result) => {
+
+            res.send(result);
+        })
+        .catch((err) => {
+            console.log(err)
+            res.send("Somee error ocurred or user already liked");
+        })
+
+
+    //TODO check if the user id has already liked the post if yes throw error
+
+
+
+}
+
+exports.comment_post = (req, res, next) => {
+    const comment = new Comment({
+        _id: new mongoose.Types.ObjectId(),
+        postId: req.params.postId,
+        body: req.body.body,
+        createdAt: Date.now(),
+        createdBy: {
+            userId: req.body.userId,
+            name: req.body.name
         }
-        //TODO check if the user id has already liked the post if yes throw error
-    
-    Post.findByIdAndUpdate(
-            req.params.postId, { $push: { likes: like } }, { new: true }
-        )
-        .exec()
-        .then(post => {
-            console.log(post)
-            res.status(200).json({
-                message: "post liked successfully"
-            })
+    })
+
+    comment
+        .save()
+        .then(comment => {
+            console.log(comment)
+            Post.findByIdAndUpdate(
+                comment.postId, { $push: { comments: comment._id } }, { new: true }
+            )
+                .exec()
+                .then(post => {
+                    console.log(post)
+                    res.status(201).json({
+                        message: "commented successfully",
+                        comment: {
+                            _id: comment._id,
+                            postId: comment.postId,
+                            createdAt: comment.createdAt,
+                            createdBy: comment.createdBy
+                        }
+                    })
+                })
+                .catch(err => {
+                    console.log(err)
+                    Comment.findByIdAndDelete(comment._id)
+                        .exec()
+                        .then(deletedComment => {
+                            console.log(deletedComment)
+                            res.status(500).json({
+                                message: "failed comment deleted"
+                            })
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            res.status(500).json({
+                                message: "failed to comment",
+                                error: err
+                            })
+                        })
+                })
         })
         .catch(err => {
             console.log(err)
             res.status(500).json({
-                message: "failed to like post",
+                message: "failed to comment on post",
                 error: err
             })
         })
 }
-
-exports.comment_post = (req, res, next) => {
-        const comment = new Comment({
-            _id: new mongoose.Types.ObjectId(),
-            postId: req.params.postId,
-            body: req.body.body,
-            createdAt: Date.now(),
-            createdBy: {
-                userId: req.body.userId,
-                name: req.body.name
-            }
-        })
-
-        comment
-            .save()
-            .then(comment => {
-                console.log(comment)
-                Post.findByIdAndUpdate(
-                        comment.postId, { $push: { comments: comment._id } }, { new: true }
-                    )
-                    .exec()
-                    .then(post => {
-                        console.log(post)
-                        res.status(201).json({
-                            message: "commented successfully",
-                            comment: {
-                                _id: comment._id,
-                                postId: comment.postId,
-                                createdAt: comment.createdAt,
-                                createdBy: comment.createdBy
-                            }
-                        })
-                    })
-                    .catch(err => {
-                        console.log(err)
-                        Comment.findByIdAndDelete(comment._id)
-                            .exec()
-                            .then(deletedComment => {
-                                console.log(deletedComment)
-                                res.status(500).json({
-                                    message: "failed comment deleted"
-                                })
-                            })
-                            .catch(err => {
-                                console.log(err)
-                                res.status(500).json({
-                                    message: "failed to comment",
-                                    error: err
-                                })
-                            })
-                    })
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(500).json({
-                    message: "failed to comment on post",
-                    error: err
-                })
-            })
-    }
-    //TODO Fix Later as the comment id is not getting added to replies[]
+//TODO Fix Later as the comment id is not getting added to replies[]
 exports.reply_to_comment = (req, res, next) => {
     const comment = new Comment({
         _id: new mongoose.Types.ObjectId(),
@@ -354,8 +467,8 @@ exports.reply_to_comment = (req, res, next) => {
         .save()
         .then(comment => {
             Comment.findByIdAndUpdate(
-                    req.params.commentId, { $push: { replies: comment._id } }, { new: true }
-                )
+                req.params.commentId, { $push: { replies: comment._id } }, { new: true }
+            )
                 .then(repliedTo => {
                     console.log(repliedTo)
                     res.status(201).json({
@@ -404,8 +517,8 @@ exports.like_comment = (req, res, next) => {
         likedAt: Date.now()
     }
     Comment.findByIdAndUpdate(
-            req.params.commentId, { $push: { likes: like } }, { new: true }
-        )
+        req.params.commentId, { $push: { likes: like } }, { new: true }
+    )
         .exec()
         .then(comment => {
             console.log(comment)
@@ -440,27 +553,27 @@ exports.get_all_posts2 = (req, res, next) => {
 }
 
 exports.getComments = (req, res, next) => {
-    Comment.find({$and:[{"postId" : req.params.postId}]})
-    .lean()
-    .exec((err, result) => {
-        if (err){
-            res.send(err)
-        }else{
-            res.send(result)
-        }
-    })
+    Comment.find({ $and: [{ "postId": req.params.postId }] })
+        .lean()
+        .exec((err, result) => {
+            if (err) {
+                res.send(err)
+            } else {
+                res.send(result)
+            }
+        })
 }
 
 exports.getPostByUser = (req, res, next) => {
-    Post.find({$and:[{"userId" : req.params.postId}]})
-    .lean()
-    .exec((err, result) => {
-        if (err){
-            res.send(err)
-        }else{
-            res.send(result)
-        }
-    })
+    Post.find({ $and: [{ "userId": req.params.postId }] })
+        .lean()
+        .exec((err, result) => {
+            if (err) {
+                res.send(err)
+            } else {
+                res.send(result)
+            }
+        })
 }
 
 exports.savePost = (req, res, next) => {
@@ -469,58 +582,59 @@ exports.savePost = (req, res, next) => {
         savedAt: Date.now()
     }
     Post.findByIdAndUpdate(
-        req.params.postId, {$push: {saved: saved}}, {new: true}
+        req.params.postId, { $push: { saved: saved } }, { new: true }
     )
-    .exec()
-    .then(post=>{
-        console.log(post)
-        res.status(200).json({
-            message:"post saved succesfully"
+        .exec()
+        .then(post => {
+            console.log(post)
+            res.status(200).json({
+                message: "post saved succesfully"
+            })
         })
-    })
-    .catch(err => {
-        console.log(err)
-        res.status(500).json({
-            message:"failed",
-            error : err
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                message: "failed",
+                error: err
+            })
         })
-    })
 }
 
 exports.reportPost = (req, res, next) => {
     const reported = {
-        reportedBy : req.body.userId,
-        reportedAt : Date.now(),
-        reportedFor : req.body.for
+        reportedBy: req.body.userId,
+        reportedAt: Date.now(),
+        reportedFor: req.body.for
     }
 
     Post.findByIdAndUpdate(
-        req.params.postId, {$push: {report:reported}}, {new: true}
+        req.params.postId, { $push: { report: reported } }, { new: true }
     )
-    .exec()
-    .then(post =>{
-        console.log(post)
-        res.status(200).json({
-            message: "reported"
+        .exec()
+        .then(post => {
+            console.log(post)
+            res.status(200).json({
+                message: "reported"
+            })
         })
-    })
-    .catch(err =>{
-        res.status(500).json({
-            message:"failed",
-            error:err
+        .catch(err => {
+            res.status(500).json({
+                message: "failed",
+                error: err
+            })
         })
-    })
 }
 
 exports.getSavedPost = (req, res, next) => {
-    Post.find({$and:[{"saved.savedBy" : req.params.userId}]})
-    .lean()
-    .exec((err, result) => {
-        if (err){
-            res.send(err)
-        }else{
-            res.send(result)
-        }
-    })
+    Post.find({ $and: [{ "saved.savedBy": req.params.userId }] })
+        .lean()
+        .exec((err, result) => {
+            if (err) {
+                res.send(err)
+            } else {
+                res.send(result)
+            }
+        })
 }
+
 
