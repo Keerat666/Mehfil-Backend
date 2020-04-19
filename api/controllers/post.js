@@ -175,14 +175,14 @@ exports.create_post = (req, res, next) => {
 exports.upload_file = async (req, res, next) => {
 
     const { path } = req.file;
-    console.log(path)
+    console.log("PATH : " + path)
     let uploadedObject = {
     };
 
     try {
 
         uploadedObject = await cloudinary.uploads(path, 'Images');
-        console.log(uploadedObject);
+        console.log("cloudinary link : " +uploadedObject);
 
     } catch (e) {
 
@@ -214,14 +214,14 @@ exports.upload_file = async (req, res, next) => {
         }
     });
 
-    fs.unlink(path, (err, result) => {
-        if (err){
-            console.log(err)
-        }
-        else{
-            
-        }
-    })
+    // fs.unlink(path, (err, result) => {
+    //     if (err){
+    //         console.log(err)
+    //     }
+    //     else{
+
+    //     }
+    // })
 
 
 }

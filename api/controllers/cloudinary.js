@@ -31,7 +31,7 @@ exports.uploads = (file, folder) => {
                     reject(error);
                 } else {
 
-
+                    
                     resolve({
                         url: result.url,
                         id: result.public_id
