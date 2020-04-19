@@ -214,14 +214,14 @@ exports.upload_file = async (req, res, next) => {
         }
     });
 
-    // fs.unlink(path, (err, result) => {
-    //     if (err){
-    //         console.log(err)
-    //     }
-    //     else{
+    fs.unlink(path, (err, result) => {
+        if (err){
+            console.log(err)
+        }
+        else{
 
-    //     }
-    // })
+        }
+    })
 
 
 }
