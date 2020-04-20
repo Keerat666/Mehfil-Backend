@@ -29,14 +29,17 @@ exports.user_signup = (req, res, next) => {
               },
               provider: "local",
               email: req.body.email,
-              password: hash
+              password: hash,
+              description : req.body.description,
+              username: req.body.username
             })
             user
               .save()
               .then(result => {
                 console.log(result)
                 res.status(201).json({
-                  message: "User created"
+                  message: "User created",
+                  user_id : result._id
                 })
               })
               .catch(err => {
@@ -70,14 +73,16 @@ exports.user_signup_google = (req, res, next) => {
           provider: "google",
           providerId: req.body.providerId,
           email: req.body.email,
-          description : req.body.description
+          description : req.body.description,
+          username: req.body.username
         })
         user
           .save()
           .then(result => {
             console.log(result)
             res.status(201).json({
-              message: "User created"
+              message: "User created",
+              user_id : result._id
             })
           })
           .catch(err => {
@@ -108,7 +113,7 @@ exports.user_signup_facebook = (req, res, next) => {
           },
           provider: "facebook",
           providerId: req.body.providerId,
-          email: req.body.email
+          email: req.body.email,
         })
         user
           .save()
@@ -164,7 +169,8 @@ exports.user_login = (req, res, next) => {
             )
             return res.status(200).json({
               message: "Auth successful",
-              token: token
+              token: token,
+              user_id : user[0]._id
             })
           }
           res.status(401).json({
