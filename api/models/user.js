@@ -14,11 +14,20 @@ const userSchema = mongoose.Schema({
     unique: true,
     match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
   },
-  password: { type: String },
+  password: { type: String ,
+    required: true,
+  },
   dob: { type: Number },
-  description: { type: String },
+  description: { type: String,
+    required: true,
+   },
   followers: [],
   following: [],
+  username: {type:String,
+    required: true,
+    unique: true,},
+  profile_pic: {type:String,
+  default:'https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c'}
 })
 
 module.exports = mongoose.model("User", userSchema)

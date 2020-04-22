@@ -20,7 +20,9 @@ exports.profile_view = (req, res, next) => {
             name: user.name,
             dob: user.dob,
             postCount: posts.length,
-            posts
+            followers_count: user.followers.length,
+            following_count:user.following.length,
+            bio: user.description
           })
         })
         .catch(err => {
