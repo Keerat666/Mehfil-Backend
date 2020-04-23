@@ -23,7 +23,7 @@ exports.profile_view = (req, res, next) => {
             followers_count: user.followers.length,
             following_count:user.following.length,
             bio: user.description,
-            profile_pic = user.profile_pic
+            profile_pic: user.profile_pic
           })
         })
         .catch(err => {
