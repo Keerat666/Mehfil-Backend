@@ -22,7 +22,8 @@ exports.profile_view = (req, res, next) => {
             postCount: posts.length,
             followers_count: user.followers.length,
             following_count:user.following.length,
-            bio: user.description
+            bio: user.description,
+            profile_pic = user.profile_pic
           })
         })
         .catch(err => {
