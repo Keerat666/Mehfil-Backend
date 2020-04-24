@@ -12,5 +12,7 @@ router.post("/login/facebook", UserController.user_login_facebook)
 router.post("/follow/:userId/:followerId", UserController.follow)
 router.get("/followers/:userId", UserController.followers)
 router.get("/following/:userId", UserController.following)
+router.get("/search/:query", UserController.searchPosts)
+
 
 module.exports = router

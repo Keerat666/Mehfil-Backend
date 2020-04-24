@@ -18,12 +18,12 @@ exports.profile_view = (req, res, next) => {
             _id: user._id,
             self: false,
             name: user.name,
-            dob: user.dob,
             postCount: posts.length,
             followers_count: user.followers.length,
             following_count:user.following.length,
-            bio: user.description,
-            profile_pic: user.profile_pic
+            description: user.description,
+            profile_pic: user.profile_pic,
+            username: user.username
           })
         })
         .catch(err => {

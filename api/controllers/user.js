@@ -5,6 +5,7 @@ const crypto = require("crypto")
 
 const User = require("../models/user")
 const Post = require("../models/post")
+const Fuse = require("fuse.js")
 
 exports.user_signup = (req, res, next) => {
   User.find({ email: req.body.email })
@@ -30,7 +31,7 @@ exports.user_signup = (req, res, next) => {
               provider: "local",
               email: req.body.email,
               password: hash,
-              description : req.body.description,
+              description: req.body.description,
               username: req.body.username
             })
             user
@@ -39,7 +40,7 @@ exports.user_signup = (req, res, next) => {
                 console.log(result)
                 res.status(201).json({
                   message: "User created",
-                  user_id : result._id
+                  user_id: result._id
                 })
               })
               .catch(err => {
@@ -73,7 +74,7 @@ exports.user_signup_google = (req, res, next) => {
           provider: "google",
           providerId: req.body.providerId,
           email: req.body.email,
-          description : req.body.description,
+          description: req.body.description,
           username: req.body.username
         })
         user
@@ -82,7 +83,7 @@ exports.user_signup_google = (req, res, next) => {
             console.log(result)
             res.status(201).json({
               message: "User created",
-              user_id : result._id
+              user_id: result._id
             })
           })
           .catch(err => {
@@ -170,7 +171,7 @@ exports.user_login = (req, res, next) => {
             return res.status(200).json({
               message: "Auth successful",
               token: token,
-              user_id : user[0]._id
+              user_id: user[0]._id
             })
           }
           res.status(401).json({
@@ -264,56 +265,117 @@ exports.user_login_facebook = (req, res, next) => {
 
 exports.follow = (req, res, next) => {
   const followed = {
-    followedBy : req.params.followerId,
-    followedAt : Date.now(),
-}
+    followedBy: req.params.followerId,
+    followedAt: Date.now(),
+  }
   User.findByIdAndUpdate(
-    req.params.userId, {$push:{followers:followed}}, {new:true}
-    )
+    req.params.userId, { $push: { followers: followed } }, { new: true }
+  )
     .exec()
-    .then(user =>{
+    .then(user => {
       console.log(user)
       res.status(200).json({
-        message:"followed"
+        message: "followed"
       })
     })
-    .catch(err =>{
+    .catch(err => {
       console.log(err)
       res.status(500).json({
-        message:"Failed",
-        error:err
+        message: "Failed",
+        error: err
       })
-    }) 
+    })
 
 }
 
 exports.following = (req, res, next) => {
   User.find(
-    {$and:[{"followers.followedBy" : req.params.userId}]}
+    {"followers.followedBy": req.params.userId }
   )
-  .lean()
-  .exec((err, result) => {
-    if(err){
-      res.send(err)
-    }else{
-      res.send(result)
-    }
-  })
+    .lean()
+    .exec((err, result) => {
+      if (err) {
+        res.send(err)
+      } else {
+        res.send(result)
+      }
+    })
 }
 
 exports.followers = (req, res, next) => {
   User.find(
-    {"userId":req.params.userId}
+    { "userId": req.params.userId }
   )
-  .lean()
-  .exec((err, result) => {
-    if(err){
-      res.send(err)
-    }else{
-      res.send(result)
-    }
-  })
+    .lean()
+    .exec((err, result) => {
+      if (err) {
+        res.send(err)
+      } else {
+        res.send(result)
+      }
+    })
 }
+
+
+exports.searchPosts = (req, res, next) => {
+  User.find()
+    .lean()
+    .exec()
+    .then((result, err) => {
+      if (err) {
+        res.send(err)
+      } else {
+        var options = {
+          keys: ['name.firstName', 'email', 'username', 'name.lastName', 'description'],
+          threshold: 0.4
+        };
+        var fuse = new Fuse(result, options)
+
+        let fuse_result = fuse.search(req.params.query)
+        if (fuse_result === [])
+          res.status(200).json({ "msg": "No such products found" });
+        else
+          res.status(200).json(fuse_result);
+
+      }
+    })
+}
+
+// products_search(query, res) {
+//   console.log(query)
+
+
+
+
+//   ProductModel.find((err, ProductModel1) => {
+
+//       if (query.length <= 0)
+//           res.status(203).json({ "msg": "Please enter a search term" });
+
+//       if (err) {
+//           console.log(err);
+//           res.status(500).json({ "err": err });
+//       } else {
+//           if (ProductModel1 == null) {
+//               res.status(404).json({ "msg": "Product list is empty" });
+//           } else {
+              // var options = {
+              //     keys: ['name', 'search_tags']
+              // };
+              // var fuse = new Fuse(ProductModel1, options)
+
+              // let result = fuse.search(query)
+              // if (result === [])
+              //     res.status(200).json({ "msg": "No such products found" });
+              // else
+              //     res.status(200).json(result);
+
+
+//           }
+//       }
+//   });
+// },
+
 
 /*
 {
