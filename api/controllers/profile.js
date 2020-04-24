@@ -4,7 +4,6 @@ const Post = require("../models/post")
 const User = require("../models/user")
 
 exports.profile_view = (req, res, next) => {
-  console.log(mongoose.Types.ObjectId.isValid(req.params.userId))
   User.findById(req.params.userId)
     .exec()
     .then(user => {
@@ -20,7 +19,7 @@ exports.profile_view = (req, res, next) => {
             name: user.name,
             postCount: posts.length,
             followers_count: user.followers.length,
-            following_count:user.following.length,
+            following_count: user.following.length,
             description: user.description,
             profile_pic: user.profile_pic,
             username: user.username
