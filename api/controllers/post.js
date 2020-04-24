@@ -6,9 +6,9 @@ var probe = require("probe-image-size")
 
 const Post = require("../models/post")
 const Comment = require("../models/comment")
-
+const User = require("../models/user")
 const cloudinary = require("./cloudinary")
-const multer = require("../middlewares/multer")
+
 
 exports.create_post = (req, res, next) => {
     console.log("user data", req.userData)
@@ -182,7 +182,7 @@ exports.upload_file = async (req, res, next) => {
     try {
 
         uploadedObject = await cloudinary.uploads(path, 'Images');
-        console.log("cloudinary link : " +uploadedObject);
+        console.log("cloudinary link : " + uploadedObject);
 
     } catch (e) {
 
@@ -215,10 +215,10 @@ exports.upload_file = async (req, res, next) => {
     });
 
     fs.unlink(path, (err, result) => {
-        if (err){
+        if (err) {
             console.log(err)
         }
-        else{
+        else {
 
         }
     })
@@ -322,11 +322,7 @@ exports.like_post = (req, res, next) => {
                 .exec((err, obtainedPost) => {
 
                     if (err) { } else {
-
                         let alreadyLiked = false;
-
-                        console.log(obtainedPost.likes);
-
                         obtainedPost.likes.map((singleLike) => {
 
                             if (`${singleLike.likedBy}` == req.body.userId) {
@@ -336,7 +332,6 @@ exports.like_post = (req, res, next) => {
 
                             }
                         }); //end map
-
 
                         if (alreadyLiked == true) {
 
@@ -382,13 +377,8 @@ exports.like_post = (req, res, next) => {
         })
         .catch((err) => {
             console.log(err)
-            res.send("Somee error ocurred or user already liked");
+            res.send("Some error ocurred or user already liked");
         })
-
-
-    //TODO check if the user id has already liked the post if yes throw error
-
-
 
 }
 
@@ -552,17 +542,43 @@ exports.get_all_posts2 = (req, res, next) => {
         })
 }
 
-exports.getComments = (req, res, next) => {
-    Comment.find({ $and: [{ "postId": req.params.postId }] })
+getuserdetails = (userId) => {
+    User.findOne(userId)
         .lean()
-        .exec((err, result) => {
+        .exec()
+        .then((result, err) => {
             if (err) {
-                res.send(err)
-            } else {
-                res.send(result)
+                return {
+                    err: err,
+                    message: "No user found"
+                }
+            }
+            else {
+                return result
             }
         })
 }
+
+exports.getComments = async (req, res, next) => {
+    Comment.find({ $and: [{ "postId": req.params.postId }] })
+        .lean()
+        .exec()
+        .then(async (result, err) => {
+            if (err) {
+                res.send(err)
+                return err
+            } else {
+                // res.send(result)
+                for (comment in result) {
+                    user_details = await getuserdetails(result[comment]["createdBy"]["userId"])
+                    console.log(user_details)
+                }
+                return result
+
+            }
+        })
+}
+
 
 exports.getPostByUser = (req, res, next) => {
     Post.find({ $and: [{ "userId": req.params.postId }] })
@@ -572,6 +588,7 @@ exports.getPostByUser = (req, res, next) => {
                 res.send(err)
             } else {
                 res.send(result)
+
             }
         })
 }
@@ -636,5 +653,3 @@ exports.getSavedPost = (req, res, next) => {
             }
         })
 }
-
-
