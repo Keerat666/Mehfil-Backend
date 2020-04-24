@@ -264,12 +264,22 @@ exports.user_login_facebook = (req, res, next) => {
 }
 
 exports.follow = (req, res, next) => {
-  const followed = {
+  const follower = {
     followedBy: req.params.followerId,
     followedAt: Date.now(),
   }
+
+  const following = {
+    followeding: req.params.userId,
+    followedAt: Date.now(),
+  }
   User.findByIdAndUpdate(
-    req.params.userId, { $push: { followers: followed } }, { new: true }
+    req.params.followerId, { $push: { following: following } }, { new: true }
+  )
+  .exec()
+  .then(
+  User.findByIdAndUpdate(
+    req.params.userId, { $push: { followers: follower } }, { new: true }
   )
     .exec()
     .then(user => {
@@ -285,7 +295,7 @@ exports.follow = (req, res, next) => {
         error: err
       })
     })
-
+  )
 }
 
 exports.following = (req, res, next) => {
