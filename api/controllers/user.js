@@ -270,7 +270,7 @@ exports.follow = (req, res, next) => {
   }
 
   const following = {
-    followeding: req.params.userId,
+    following: req.params.userId,
     followedAt: Date.now(),
   }
   User.findByIdAndUpdate(
