@@ -300,28 +300,32 @@ exports.follow = (req, res, next) => {
 
 exports.following = (req, res, next) => {
   User.find(
-    {"followers.followedBy": req.params.userId }
+    {_id: req.params.userId }
   )
     .lean()
-    .exec((err, result) => {
-      if (err) {
-        res.send(err)
+    .exec()
+    .then((result, err) => {
+      if (result) {
+        res.send(result[0]["following"])
       } else {
-        res.send(result)
+        console.log("error" + err)
+        res.send(err)
       }
     })
 }
 
 exports.followers = (req, res, next) => {
   User.find(
-    { "userId": req.params.userId }
+    { _id: req.params.userId }
   )
     .lean()
-    .exec((err, result) => {
-      if (err) {
-        res.send(err)
+    .exec()
+    .then((result, err) => {
+      if (result) {
+        res.send(result[0]["followers"])
       } else {
-        res.send(result)
+        console.log("error" + err)
+        res.send(err)
       }
     })
 }
