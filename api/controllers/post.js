@@ -373,11 +373,11 @@ exports.like_post = (req, res, next) => {
         .then(updateLikes)
         .then((result) => {
 
-            res.send(result);
+            res.status(200).json({message:result});
         })
         .catch((err) => {
             console.log(err)
-            res.send("Some error ocurred or user already liked");
+            res.send({message : "Some error ocurred or user already liked"});
         })
 
 }
