@@ -568,9 +568,9 @@ exports.getComments = async (req, res, next) => {
                 res.send(err)
                 return err
             } else {
-                // res.send(result)
+                res.send(result)
                 for (comment in result) {
-                    user_details = await getuserdetails(result[comment]["createdBy"]["userId"])
+                    // user_details = await getuserdetails(result[comment]["createdBy"]["userId"])
                     console.log(user_details)
                 }
                 return result
