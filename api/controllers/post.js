@@ -518,27 +518,69 @@ exports.reply_to_comment = (req, res, next) => {
 }
 
 exports.like_comment = (req, res, next) => {
-    const like = {
-        likedBy: req.body.userId,
-        likedAt: Date.now()
-    }
-    Comment.findByIdAndUpdate(
-        req.params.commentId, { $push: { likes: like } }, { new: true }
-    )
-        .exec()
-        .then(comment => {
-            console.log(comment)
-            res.status(201).json({
-                message: "comment liked successfully"
-            })
-        })
-        .catch(err => {
+
+    Comment.findOne({'_id': req.params.commentId})
+    .lean()
+    .exec()
+    .then((obtainedComment, err) => {
+        if(err){
             console.log(err)
-            res.status(500).json({
-                message: "failed to like comment",
-                error: err
+        }
+        else{
+            let alreadyLiked = false;
+            obtainedComment.likes.map((singleLike) => {
+
+                if (`${singleLike.likedBy}` == req.body.userId) {
+
+                    alreadyLiked = true;
+                } else {
+
+                }
+            }); //end map
+            return alreadyLiked
+        }
+    })
+    .then((result) => {
+        if (result == true){
+            Comment.findByIdAndUpdate(
+                req.params.commentId, {$pull: { 'likes': {'likedBy' : req.body.userId} }}
+            )
+            .exec()
+            .then(comment=>{
+                console.log("here "+ comment)
+                res.status(201).json({
+                    message: "Unliked successfully"
+                })
             })
-        })
+            .catch(err=> {
+                console.log("something terrible had happened..... I guess")
+                console.log(err)
+            })
+        }
+        else{
+            const like = {
+                likedBy: req.body.userId,
+                likedAt: Date.now()
+            }
+            Comment.findByIdAndUpdate(
+                req.params.commentId, { $push: { likes: like } }, { new: true }
+            )
+                .exec()
+                .then(comment => {
+                    console.log(comment)
+                    res.status(201).json({
+                        message: "comment liked successfully"
+                    })
+                })
+                .catch(err => {
+                    console.log(err)
+                    res.status(500).json({
+                        message: "failed to like comment",
+                        error: err
+                    })
+                })
+        }
+    })
 }
 
 

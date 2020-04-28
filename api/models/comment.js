@@ -12,12 +12,7 @@ const commentSchema = mongoose.Schema({
 			lastName: { type: String }
 		}
 	},
-	likes: [
-		{
-			likedBy: mongoose.Schema.Types.ObjectId,
-			likedAt: { type: Number }
-		}
-	],
+	likes: [],
 	replies: []
 })
 
