@@ -323,6 +323,7 @@ exports.like_post = (req, res, next) => {
 
                     if (err) { } else {
                         let alreadyLiked = false;
+                        console.log(obtainedPost.likes)
                         obtainedPost.likes.map((singleLike) => {
 
                             if (`${singleLike.likedBy}` == req.body.userId) {
@@ -335,10 +336,10 @@ exports.like_post = (req, res, next) => {
 
                         if (alreadyLiked == true) {
 
-                            reject("User already liked");
+                            resolve(alreadyLiked);
                         } else {
 
-                            resolve("success");
+                            resolve(alreadyLiked);
                         }
                     }
                 }); //end post find
@@ -346,38 +347,53 @@ exports.like_post = (req, res, next) => {
     }
 
     let updateLikes = (successMessage) => {
-
-        return new Promise((resolve, reject) => {
-
-            const like = {
-                likedBy: req.body.userId,
-                likedAt: Date.now()
-            }
-
-            Post.findByIdAndUpdate(
-                req.params.postId, { $push: { likes: like } }, { new: true }
-            )
+        if (successMessage == true) {
+            return new Promise((resolve, reject) => {
+                Post.findByIdAndUpdate(
+                    req.params.postId, {$pull: { 'likes': {'likedBy' : req.body.userId} }}
+                )
                 .exec()
-                .then(post => {
+                .then(post=>{
                     console.log(post)
-                    resolve("liked successfully")
+                    reject("unlike sucessfull")
                 })
-                .catch(err => {
-                    console.log(err);
-                    reject("already liked or error")
+                .catch(err=> {
+                    console.log("something terrible had happened..... I guess")
+                    console.log(err)
                 })
-        })
+            })
+        } else {
+            return new Promise((resolve, reject) => {
+
+                const like = {
+                    likedBy: req.body.userId,
+                    likedAt: Date.now()
+                }
+
+                Post.findByIdAndUpdate(
+                    req.params.postId, { $push: { likes: like } }, { new: true }
+                )
+                    .exec()
+                    .then(post => {
+                        console.log(post)
+                        resolve("liked successfully")
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        reject("already liked or error")
+                    })
+            })
+        }
     }
 
     findMyPost()
         .then(updateLikes)
         .then((result) => {
-
-            res.status(200).json({message:result});
+            res.status(200).json({ message: result });
         })
         .catch((err) => {
             console.log(err)
-            res.send({message : "Some error ocurred or user already liked"});
+            res.send({ message: "Some error ocurred or user already liked" });
         })
 
 }
