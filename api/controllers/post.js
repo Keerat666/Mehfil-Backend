@@ -295,7 +295,7 @@ exports.get_all_posts = (req, res, next) => {
 
     const options = {
         page: parseInt(req.query.page, 10) || 1,
-        limit: 20,
+        limit: 10,
         sort: { createdAt: -1 },
         customLabels
     }
