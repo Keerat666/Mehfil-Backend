@@ -302,12 +302,49 @@ exports.get_all_posts = (req, res, next) => {
 
     Post.paginate({}, options)
         .then(result => {
-            console.log(result)
             res.status(200).json(result)
+            // return result;
         })
+        // .then(result=>{
+        //     // let resultObj = result.toObject();
+        //     console.log(resultObj)
+        //     result["posts"].map((post)=>{
+        //         console.log(typeof(post))
+        //         let alreadyLiked = false;
+        //                 post.likes.map((singleLike) => {
+        //                     if (`${singleLike.likedBy}` == req.params.userId) {
+        //                         alreadyLiked = true;
+        //                     } else {
+        //                         alreadyLiked = false
+        //                     }
+        //                 })
+        //     post.add({'alreadyLiked' : alreadyLiked})
+        //     // console.log(post)
+        //     })
+        //     return result
+        // })
+        // .then(result=>{
+            
+        // })
         .catch(err => {
             console.log(err)
             res.status(500).json({})
+        })
+}
+
+exports.get_all_posts2 = (req, res, next) => {
+    Post.find()
+        .exec()
+        .then(post => {
+            console.log(post)
+            res.status(200).json(post)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                message: "failed to fetch post",
+                error: err
+            })
         })
 }
 
@@ -584,22 +621,6 @@ exports.like_comment = (req, res, next) => {
 }
 
 
-exports.get_all_posts2 = (req, res, next) => {
-    Post.find()
-        .exec()
-        .then(post => {
-            console.log(post)
-            res.status(200).json(post)
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({
-                message: "failed to fetch post",
-                error: err
-            })
-        })
-}
-
 getuserdetails = (userId) => {
     User.findOne(userId)
         .lean()
@@ -639,7 +660,7 @@ exports.getComments = async (req, res, next) => {
 
 
 exports.getPostByUser = (req, res, next) => {
-    Post.find({ $and: [{ "userId": req.params.postId }] })
+    Post.find({ $and: [{ "createdBy.userId": req.params.userId }] })
         .lean()
         .exec((err, result) => {
             if (err) {
