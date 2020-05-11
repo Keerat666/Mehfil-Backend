@@ -208,10 +208,11 @@ exports.user_login_google = (req, res, next) => {
             },
             process.env.JWT_KEY
           )
+          
           return res.status(200).json({
             message: "Auth successful",
             token : token,
-            user_id = user[0]._id
+            user_id : user[0]._id
           })
         } else {
           res.status(401).json({
