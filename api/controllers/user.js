@@ -75,7 +75,8 @@ exports.user_signup_google = (req, res, next) => {
           providerId: req.body.providerId,
           email: req.body.email,
           description: req.body.description,
-          username: req.body.username
+          username: req.body.username,
+          profile_pic : req.body.profile_pic
         })
         user
           .save()
@@ -209,7 +210,7 @@ exports.user_login_google = (req, res, next) => {
           )
           return res.status(200).json({
             message: "Auth successful",
-            token
+            token : token
           })
         } else {
           res.status(401).json({
