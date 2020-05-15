@@ -25,7 +25,7 @@ const postSchema = mongoose.Schema({
       savedAt: { type: Date, default: Date.now() }
     }
   ],
-  comments: []
+  comments: [],
 });
 
 postSchema.plugin(mongoosePaginate);

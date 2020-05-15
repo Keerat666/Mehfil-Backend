@@ -302,42 +302,81 @@ exports.get_all_posts = (req, res, next) => {
 
     Post.paginate({}, options)
         .then(result => {
-            res.status(200).json(result)
-            // return result;
+            // res.status(200).json(result)
+            return result;
         })
-        // .then(result=>{
-        //     // let resultObj = result.toObject();
-        //     console.log(resultObj)
-        //     result["posts"].map((post)=>{
-        //         console.log(typeof(post))
-        //         let alreadyLiked = false;
-        //                 post.likes.map((singleLike) => {
-        //                     if (`${singleLike.likedBy}` == req.params.userId) {
-        //                         alreadyLiked = true;
-        //                     } else {
-        //                         alreadyLiked = false
-        //                     }
-        //                 })
-        //     post.add({'alreadyLiked' : alreadyLiked})
-        //     // console.log(post)
-        //     })
-        //     return result
-        // })
-        // .then(result=>{
+        .then(result => {
+            //already liked, profile image, nickname
+            let resultObj = result["posts"]
+            let finalResult = []
+            Promise.all(resultObj.map(async(singlePost) => {                
+                var tempost = JSON.parse(JSON.stringify(singlePost));
+                var alreadyLiked = false;
+                tempost.likes.map((singleLike) => {
+                    if (`${singleLike.likedBy}` == req.params.userId) {
+                        alreadyLiked = true;
+                    } else {
+                        alreadyLiked = false
+                    }
+                })
+                tempost["alreadyLiked"] = alreadyLiked
+              
+                await User.findOne({ '_id': singlePost.createdBy.userId },
+                (err2, res2) => {
+                    if (err2) {
+                        console.log("err2 is " + err2);
+                        res.status(500).json({
+                            message: "failed reply deleted",
+                            error : err2
+                        })
+                    }
+                    else {
+                        if (res2 == null) {
+                            tempost["profile_pic"] = "https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c"
+                            tempost["username"] = "User Deleted"
+                        }
+                        else {
+                            tempost["profile_pic"] = res2.profile_pic
+                            tempost["username"] = res2.username
+                        }
+                    }
+                })
+
+                finalResult.push(tempost)
+            }))
+            .then(()=>{
+                console.log(finalResult)
+            })
+        })
+        // .then(result => {
             
         // })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({})
-        })
+        // .catch(err => {
+        //     console.log(err)
+        //     res.status(500).json({})
+        // })
 }
 
 exports.get_all_posts2 = (req, res, next) => {
     Post.find()
         .exec()
         .then(post => {
-            console.log(post)
-            res.status(200).json(post)
+            // res.status(200).json(post)
+            // tempost = post
+            resultObj = post
+            resultObj.map((singlePost) => {
+                var tempost = singlePost
+                var alreadyLiked = false;
+                tempost.likes.map((singleLike) => {
+                    if (`${singleLike.likedBy}` == req.params.userId) {
+                        alreadyLiked = true;
+                    } else {
+                        alreadyLiked = false
+                    }
+                })
+                tempost["alreadyLiked"] = alreadyLiked
+                console.log(tempost)
+            })
         })
         .catch(err => {
             console.log(err)
@@ -387,17 +426,17 @@ exports.like_post = (req, res, next) => {
         if (successMessage == true) {
             return new Promise((resolve, reject) => {
                 Post.findByIdAndUpdate(
-                    req.params.postId, {$pull: { 'likes': {'likedBy' : req.body.userId} }}
+                    req.params.postId, { $pull: { 'likes': { 'likedBy': req.body.userId } } }
                 )
-                .exec()
-                .then(post=>{
-                    console.log(post)
-                    reject("unlike sucessfull")
-                })
-                .catch(err=> {
-                    console.log("something terrible had happened..... I guess")
-                    console.log(err)
-                })
+                    .exec()
+                    .then(post => {
+                        console.log(post)
+                        reject("unlike sucessfull")
+                    })
+                    .catch(err => {
+                        console.log("something terrible had happened..... I guess")
+                        console.log(err)
+                    })
             })
         } else {
             return new Promise((resolve, reject) => {
@@ -556,106 +595,112 @@ exports.reply_to_comment = (req, res, next) => {
 
 exports.like_comment = (req, res, next) => {
 
-    Comment.findOne({'_id': req.params.commentId})
-    .lean()
-    .exec()
-    .then((obtainedComment, err) => {
-        if(err){
-            console.log(err)
-        }
-        else{
-            let alreadyLiked = false;
-            obtainedComment.likes.map((singleLike) => {
-
-                if (`${singleLike.likedBy}` == req.body.userId) {
-
-                    alreadyLiked = true;
-                } else {
-
-                }
-            }); //end map
-            return alreadyLiked
-        }
-    })
-    .then((result) => {
-        if (result == true){
-            Comment.findByIdAndUpdate(
-                req.params.commentId, {$pull: { 'likes': {'likedBy' : req.body.userId} }}
-            )
-            .exec()
-            .then(comment=>{
-                console.log("here "+ comment)
-                res.status(201).json({
-                    message: "Unliked successfully"
-                })
-            })
-            .catch(err=> {
-                console.log("something terrible had happened..... I guess")
+    Comment.findOne({ '_id': req.params.commentId })
+        .lean()
+        .exec()
+        .then((obtainedComment, err) => {
+            if (err) {
                 console.log(err)
-            })
-        }
-        else{
-            const like = {
-                likedBy: req.body.userId,
-                likedAt: Date.now()
             }
-            Comment.findByIdAndUpdate(
-                req.params.commentId, { $push: { likes: like } }, { new: true }
-            )
-                .exec()
-                .then(comment => {
-                    console.log(comment)
-                    res.status(201).json({
-                        message: "comment liked successfully"
+            else {
+                let alreadyLiked = false;
+                obtainedComment.likes.map((singleLike) => {
+
+                    if (`${singleLike.likedBy}` == req.body.userId) {
+
+                        alreadyLiked = true;
+                    } else {
+
+                    }
+                }); //end map
+                return alreadyLiked
+            }
+        })
+        .then((result) => {
+            if (result == true) {
+                Comment.findByIdAndUpdate(
+                    req.params.commentId, { $pull: { 'likes': { 'likedBy': req.body.userId } } }
+                )
+                    .exec()
+                    .then(comment => {
+                        console.log("here " + comment)
+                        res.status(201).json({
+                            message: "Unliked successfully"
+                        })
                     })
-                })
-                .catch(err => {
-                    console.log(err)
-                    res.status(500).json({
-                        message: "failed to like comment",
-                        error: err
+                    .catch(err => {
+                        console.log("something terrible had happened..... I guess")
+                        console.log(err)
                     })
-                })
-        }
-    })
+            }
+            else {
+                const like = {
+                    likedBy: req.body.userId,
+                    likedAt: Date.now()
+                }
+                Comment.findByIdAndUpdate(
+                    req.params.commentId, { $push: { likes: like } }, { new: true }
+                )
+                    .exec()
+                    .then(comment => {
+                        console.log(comment)
+                        res.status(201).json({
+                            message: "comment liked successfully"
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.status(500).json({
+                            message: "failed to like comment",
+                            error: err
+                        })
+                    })
+            }
+        })
 }
 
-
-getuserdetails = (userId) => {
-    User.findOne(userId)
+exports.getComments = (req, res, next) => {
+    Comment.find({ $and: [{ "postId": req.params.postId }] })
         .lean()
         .exec()
         .then((result, err) => {
             if (err) {
-                return {
-                    err: err,
-                    message: "No user found"
-                }
-            }
-            else {
-                return result
-            }
-        })
-}
-
-exports.getComments = async (req, res, next) => {
-    Comment.find({ $and: [{ "postId": req.params.postId }] })
-        .lean()
-        .exec()
-        .then(async (result, err) => {
-            if (err) {
                 res.send(err)
                 return err
             } else {
-                res.send(result)
-                for (comment in result) {
-                    // user_details = await getuserdetails(result[comment]["createdBy"]["userId"])
-                    console.log(user_details)
-                }
                 return result
-
             }
         })
+        .then((result) => {
+            let tempResult = result
+            Promise.all(tempResult.map(async (comment) => {
+                var comm = comment
+                await User.findOne({ '_id': comment.createdBy.userId },
+                    (err2, res2) => {
+                        if (err2) {
+                            console.log("err2 is " + err2);
+                            res.status(500).json({
+                                message: "failed reply deleted",
+                                error : err2
+                            })
+                        }
+                        else {
+                            if (res2 == null) {
+                                comm["profile_pic"] = "https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c"
+                                comm["username"] = "User Deleted"
+                            }
+                            else {
+                                comm["profile_pic"] = res2.profile_pic
+                                comm["username"] = res2.username
+                            }
+                        }
+                    })
+            }))
+            .then(() => {
+                res.send(result)
+            })            
+        })
+
 }
 
 
