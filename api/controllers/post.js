@@ -345,16 +345,18 @@ exports.get_all_posts = (req, res, next) => {
                 finalResult.push(tempost)
             }))
             .then(()=>{
-                console.log(finalResult)
+                res.status(200).json(finalResult)
             })
+            .catch(err => {
+                console.log(err)
+                res.status(500).json({})
+            })
+    
         })
-        // .then(result => {
-            
-        // })
-        // .catch(err => {
-        //     console.log(err)
-        //     res.status(500).json({})
-        // })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({})
+        })
 }
 
 exports.get_all_posts2 = (req, res, next) => {
@@ -697,7 +699,7 @@ exports.getComments = (req, res, next) => {
                     })
             }))
             .then(() => {
-                res.send(result)
+                res.status(200).json(result)
             })            
         })
 
