@@ -345,7 +345,18 @@ exports.get_all_posts = (req, res, next) => {
                 finalResult.push(tempost)
             }))
             .then(()=>{
-                res.status(200).json(finalResult)
+                var objFinal = {}
+                objFinal["posts"] = finalResult
+                objFinal["limit"] = result["limit"]
+                objFinal["totalPages"] = result["totalPages"]
+                objFinal["currentPage"] = result["currentPage"]
+                objFinal["slNo"] = result["slNo"]
+                objFinal["hasPrevPage"] = result["hasPrevPage"]
+                objFinal["hasNextPage"] = result["hasNextPage"]
+                objFinal["postCount"] = result["postCount"]
+                objFinal["prev"] = result["prev"]
+                objFinal["next"] = result["next"]
+                res.status(200).json(objFinal)
             })
             .catch(err => {
                 console.log(err)
