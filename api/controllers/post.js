@@ -175,13 +175,11 @@ exports.create_post = (req, res, next) => {
 exports.upload_file = async (req, res, next) => {
 
     const { path } = req.file;
-    console.log("PATH : " + path)
     let uploadedObject = {
     };
 
     try {
-
-        uploadedObject = await cloudinary.uploads(path, 'Images');
+        uploadedObject = await cloudinary.uploads(path, 'Posts');
         console.log("cloudinary link : " + uploadedObject);
 
     } catch (e) {

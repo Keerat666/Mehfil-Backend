@@ -7,6 +7,8 @@ const User = require("../models/user")
 const Post = require("../models/post")
 const Fuse = require("fuse.js")
 
+const cloudinary = require("./cloudinary")
+
 exports.user_signup = (req, res, next) => {
   User.find({ email: req.body.email })
     .exec()
@@ -76,7 +78,7 @@ exports.user_signup_google = (req, res, next) => {
           email: req.body.email,
           description: req.body.description,
           username: req.body.username,
-          profile_pic : req.body.profile_pic
+          profile_pic: req.body.profile_pic
         })
         user
           .save()
@@ -208,11 +210,11 @@ exports.user_login_google = (req, res, next) => {
             },
             process.env.JWT_KEY
           )
-          
+
           return res.status(200).json({
             message: "Auth successful",
-            token : token,
-            user_id : user[0]._id
+            token: token,
+            user_id: user[0]._id
           })
         } else {
           res.status(401).json({
@@ -279,31 +281,31 @@ exports.follow = (req, res, next) => {
   User.findByIdAndUpdate(
     req.params.followerId, { $push: { following: following } }, { new: true }
   )
-  .exec()
-  .then(
-  User.findByIdAndUpdate(
-    req.params.userId, { $push: { followers: follower } }, { new: true }
-  )
     .exec()
-    .then(user => {
-      console.log(user)
-      res.status(200).json({
-        message: "followed"
-      })
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(500).json({
-        message: "Failed",
-        error: err
-      })
-    })
-  )
+    .then(
+      User.findByIdAndUpdate(
+        req.params.userId, { $push: { followers: follower } }, { new: true }
+      )
+        .exec()
+        .then(user => {
+          console.log(user)
+          res.status(200).json({
+            message: "followed"
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).json({
+            message: "Failed",
+            error: err
+          })
+        })
+    )
 }
 
 exports.following = (req, res, next) => {
   User.find(
-    {_id: req.params.userId }
+    { _id: req.params.userId }
   )
     .lean()
     .exec()
@@ -357,6 +359,55 @@ exports.searchPosts = (req, res, next) => {
       }
     })
 }
+
+exports.upload_profile = async (req, res, next) => {
+
+  const { path } = req.file;
+  let uploadedObject = {
+  };
+
+  try {
+    uploadedObject = await cloudinary.uploads(path, 'Profile');
+    console.log("cloudinary link : " + uploadedObject);
+
+  } catch (e) {
+
+    res.send("Clouinary upload failed" + e);
+  }
+
+  console.log(uploadedObject);
+
+  let options = {
+    media: uploadedObject.url
+  }
+
+  User.update({ '_id': req.params.userId }, options, (err, result) => {
+
+    if (err) {
+
+      console.log(err);
+
+      res.send("Internal server error");
+    } else {
+
+      User.findOne({ '_id': req.params.userId }, (err2, res2) => {
+
+        console.log("err2 is " + err2);
+        console.log(res2);
+
+        res.send(res2);
+      })
+    }
+  });
+
+  fs.unlink(path, (err, result) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
+
+    }
+  })
 
 // products_search(query, res) {
 //   console.log(query)

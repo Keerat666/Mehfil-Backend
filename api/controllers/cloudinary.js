@@ -26,11 +26,8 @@ exports.uploads = (file, folder) => {
                 console.log(result);
 
                 if (error) {
-
                     reject(error);
                 } else {
-
-                    
                     resolve({
                         url: result.url,
                         id: result.public_id

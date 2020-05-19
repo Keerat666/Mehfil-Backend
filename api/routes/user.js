@@ -13,6 +13,7 @@ router.post("/follow/:userId/:followerId", UserController.follow)
 router.get("/followers/:userId", UserController.followers)
 router.get("/following/:userId", UserController.following)
 router.get("/search/:query", UserController.searchPosts)
+router.post("/image/:userId", checkAuth, multer.single("postMedia"), UserController.upload_profile)
 
 
 module.exports = router
