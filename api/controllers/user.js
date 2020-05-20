@@ -303,6 +303,32 @@ exports.follow = (req, res, next) => {
     )
 }
 
+
+exports.unfollow = (req, res, next) => {
+  User.findByIdAndUpdate(
+    req.params.userId, { $pull: { 'following': { 'following': req.params.userId } } }
+  )
+    .exec()
+    .then(
+      User.findByIdAndUpdate(
+        req.params.userId, { $pull: { 'followers': { 'followedBy': req.params.followerId } } }
+      )
+    )
+    .exec()
+    .then(user => {
+      res.status(201).json({
+        message: "Unfollowed successfully"
+      })
+    })
+    .catch(err => {
+      console.log("something terrible had happened..... I guess")
+      console.log(err)
+      res.status(500).json({
+        message: "Error unfollow"
+      })
+    })
+}
+
 exports.following = (req, res, next) => {
   User.find(
     { _id: req.params.userId }

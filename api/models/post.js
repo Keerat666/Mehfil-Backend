@@ -19,12 +19,7 @@ const postSchema = mongoose.Schema({
     }
   },
   likes: [],
-  saved: [
-    {
-      savedBy: mongoose.Schema.Types.ObjectId,
-      savedAt: { type: Date, default: Date.now() }
-    }
-  ],
+  saved: [],
   comments: [],
 });
 
