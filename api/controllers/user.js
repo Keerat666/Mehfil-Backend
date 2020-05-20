@@ -408,7 +408,7 @@ exports.upload_profile = async (req, res, next) => {
 
     }
   })
-
+}
 // products_search(query, res) {
 //   console.log(query)
 
