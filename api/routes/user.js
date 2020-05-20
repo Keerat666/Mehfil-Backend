@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router()
+const multer = require("../middlewares/multer")
 
 const UserController = require("../controllers/user")
 
@@ -13,7 +14,7 @@ router.post("/follow/:userId/:followerId", UserController.follow)
 router.get("/followers/:userId", UserController.followers)
 router.get("/following/:userId", UserController.following)
 router.get("/search/:query", UserController.searchPosts)
-router.post("/image/:userId", checkAuth, multer.single("postMedia"), UserController.upload_profile)
+router.post("/image/:userId", multer.single("postMedia"), UserController.upload_profile)
 
 
 module.exports = router
