@@ -318,7 +318,17 @@ exports.get_all_posts = (req, res, next) => {
                     }
                 })
                 tempost["alreadyLiked"] = alreadyLiked
-              
+                
+                var alreadySaved = false;
+                tempost.saved.map((singleSave) => {
+                    if (`${singleSave.savedBy}` == req.params.userId) {
+                        alreadySaved = true;
+                    } else {
+                        alreadySaved = false
+                    }                    
+                })
+                tempost["alredySaved"] = alreadySaved
+
                 await User.findOne({ '_id': singlePost.createdBy.userId },
                 (err2, res2) => {
                     if (err2) {
