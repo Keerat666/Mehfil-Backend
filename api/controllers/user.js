@@ -306,15 +306,15 @@ exports.follow = (req, res, next) => {
 
 exports.unfollow = (req, res, next) => {
   User.findByIdAndUpdate(
-    req.params.userId, { $pull: { 'following': { 'following': req.params.userId } } }
+    req.params.userId, { $pull: { 'following': { 'following': req.params.followingId } } }
   )
     .exec()
     .then(
       User.findByIdAndUpdate(
-        req.params.userId, { $pull: { 'followers': { 'followedBy': req.params.followerId } } }
+        req.params.followingId, { $pull: { 'followers': { 'followedBy': req.params.userId } } }
       )
+      .exec()
     )
-    .exec()
     .then(user => {
       res.status(201).json({
         message: "Unfollowed successfully"
