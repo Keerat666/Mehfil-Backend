@@ -327,7 +327,7 @@ exports.get_all_posts = (req, res, next) => {
                         alreadySaved = false
                     }                    
                 })
-                tempost["alredySaved"] = alreadySaved
+                tempost["alreadySaved"] = alreadySaved
 
                 await User.findOne({ '_id': singlePost.createdBy.userId },
                 (err2, res2) => {
