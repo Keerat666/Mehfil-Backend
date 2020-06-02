@@ -21,6 +21,7 @@ const postSchema = mongoose.Schema({
   likes: [],
   saved: [],
   comments: [],
+  url: {type: String}
 });
 
 postSchema.plugin(mongoosePaginate);

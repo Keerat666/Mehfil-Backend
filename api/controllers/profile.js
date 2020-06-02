@@ -79,11 +79,12 @@ exports.profile_view_self = (req, res, next) => {
 }
 
 exports.profile_update = (req, res, next) => {
-  const updates = req.body
-
+  updates = {
+    description: req.body.description,
+  }
   console.log(updates)
 
-  User.findByIdAndUpdate(req.userData.userId, { $set: updates }, { new: true })
+  User.findByIdAndUpdate(req.params.userId, { $set: updates }, { new: true })
     .exec()
     .then(user => {
       console.log(user)

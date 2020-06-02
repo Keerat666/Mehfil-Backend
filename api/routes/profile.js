@@ -6,6 +6,6 @@ const ProfileController = require("../controllers/profile")
 
 router.get("/view/:userId", ProfileController.profile_view)
 router.post("/view_self", checkAuth, ProfileController.profile_view_self)
-router.post("/update", checkAuth, ProfileController.profile_update)
+router.patch("/update/:userId", checkAuth, ProfileController.profile_update)
 
 module.exports = router

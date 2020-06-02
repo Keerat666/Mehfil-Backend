@@ -17,6 +17,6 @@ router.get("/followers/:userId", UserController.followers)
 router.get("/following/:userId", UserController.following)
 router.get("/search/:query", UserController.searchPosts)
 router.post("/image/:userId", checkAuth, multer.single("postMedia"), UserController.upload_profile)
-
+router.post("/forgot/", UserController.forgot_password)
 
 module.exports = router

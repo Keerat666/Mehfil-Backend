@@ -435,6 +435,16 @@ exports.upload_profile = async (req, res, next) => {
     }
   })
 }
+
+
+
+
+exports.forgot_password = (req, res) => {
+  console.log(req.body.emailId)
+}
+
+
+
 // products_search(query, res) {
 //   console.log(query)
 
