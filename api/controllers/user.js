@@ -6,8 +6,10 @@ const crypto = require("crypto")
 const User = require("../models/user")
 const Post = require("../models/post")
 const Fuse = require("fuse.js")
-
+const Otp = require("../models/otp")
 const cloudinary = require("./cloudinary")
+const nodeMailer = require("nodemailer")
+
 
 exports.user_signup = (req, res, next) => {
   User.find({ email: req.body.email })
@@ -313,7 +315,7 @@ exports.unfollow = (req, res, next) => {
       User.findByIdAndUpdate(
         req.params.followingId, { $pull: { 'followers': { 'followedBy': req.params.userId } } }
       )
-      .exec()
+        .exec()
     )
     .then(user => {
       res.status(201).json({
@@ -440,7 +442,134 @@ exports.upload_profile = async (req, res, next) => {
 
 
 exports.forgot_password = (req, res) => {
-  console.log(req.body.emailId)
+
+  User.find({ 'email': req.body.email })
+    .lean()
+    .exec()
+    .then((result, err) => {
+      if (result) {
+        if (result.length ==0){
+          res.status(400).json({ "message": "No user with this email found" })
+        }
+        // else if(result[0].provider == "google" || result[0].provider == "facebook") {
+        //   res.status(400).json({ "message": "provider id is not local", "provider" : result[0].provider})
+
+        // } 
+        else{
+          Otp.deleteMany({'userId':result[0]._id})
+          .exec()
+          .then(delresult => {
+            otpval = Math.floor(100000 + Math.random() * 900000);
+            let otp
+  
+            otp = new Otp({
+              _id: new mongoose.Types.ObjectId(),
+              userId: result[0]._id,
+              otpval: otpval
+            })
+  
+            otp
+            .save()
+            .then(otp => {
+  
+                let transporter = nodeMailer.createTransport({
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
+                auth: {
+                  // should be replaced with real sender's account
+                  user: 'hyumomn@gmail.com',
+                  pass: 'devilmaycry@7'
+                }
+              });
+              let mailOptions = {
+                // should be replaced with real recipient's account
+                from: 'hyumomn@gmail.com',
+                to: req.body.email,
+                subject: "Otp For resetting password",
+                html: `
+                <p>
+                Otp for changing the mehfil password is ${otpval}
+                </p>  
+              `
+              };
+  
+  
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  console.log(error);
+                  res.status(403).json({ "error": "" + error });
+  
+                }
+                else{
+                  console.log(info)
+                res.status(200).json({ "message": "sent" ,'user_id': otp.userId});
+                }
+              });            
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({
+                message: "failed to delete existing otps",
+                error: err
+            })
+        })
+          })
+        }
+      } 
+      else {
+        console.log("error" + err)
+      }
+    })
+
+}
+
+
+exports.otp = (req, res) => {
+  Otp.find({ 'userId': req.body.userId })
+  .lean()
+  .then((result, err) => {
+    console.log(result)
+    if (result[0].otpval == req.body.otpval){
+      Otp.deleteMany({ 'userId': req.body.userId })
+      .exec()
+      .then(delresult => {
+        res.status(200).json({ "message": "true" })
+      })
+      .catch(error=>{
+        console.log("error deleting otp after validation")
+      })
+    }
+    else{
+      res.status(200).json({ "message": "false" })
+    }
+    });
+}
+
+
+exports.newpassword = (req, res) => {
+ 
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
+    if (err) {
+      return res.status(500).json({
+        error: err
+      })
+    }
+    else{
+
+      updates = {
+        password : hash
+      }
+      User.findByIdAndUpdate(req.body.userId, {$set: updates}, { new: true })
+      .exec()
+      .then(user => {
+        res.status(200).json({
+          message:"Password updated"
+        })
+      })
+    }
+  }) 
+
 }
 
 
