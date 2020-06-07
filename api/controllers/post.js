@@ -22,7 +22,7 @@ exports.create_post = (req, res, next) => {
         post = new Post({
             _id: new mongoose.Types.ObjectId(),
             body: req.body.body,
-            type: "text",
+            type: req.body.type,
             createdAt: Date.now(),
             createdBy: {
                 userId: req.body.createdBy.userId,
