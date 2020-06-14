@@ -8,7 +8,7 @@ const postSchema = mongoose.Schema({
   aspectRatio: { type: Number },
   type: {
     type: String,
-    match: /\b(image|video|text)\b/
+    match: /\b(image|video|text|audio)\b/
   },
   createdAt: { type: Number },
   createdBy: {
