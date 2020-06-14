@@ -477,13 +477,13 @@ exports.forgot_password = (req, res) => {
                 secure: true,
                 auth: {
                   // should be replaced with real sender's account
-                  user: 'hyumomn@gmail.com',
+                  user: 'mehfilpro@gmail.com',
                   pass: 'devilmaycry@7'
                 }
               });
               let mailOptions = {
                 // should be replaced with real recipient's account
-                from: 'hyumomn@gmail.com',
+                from: 'mehfilpro@gmail.com',
                 to: req.body.email,
                 subject: "Otp For resetting password",
                 html: `
