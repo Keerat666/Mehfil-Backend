@@ -302,7 +302,6 @@ exports.get_all_posts = (req, res, next) => {
 
     Post.paginate({}, options)
         .then(result => {
-            // res.status(200).json(result)
             return result;
         })
         .then(result => {
@@ -804,20 +803,42 @@ exports.getAudios = (req, res, next) =>{
     Post.find({'type': 'audio', 'category':req.body.category})
     .lean()
     .exec()
-    .then((result) => {
-        if (result) {
-            res.status(200).json({
-                post : result
+    .then(result => {
+        let resultObj = result
+        let finalResult = []
+
+        Promise.all(resultObj.map(async(singlePost) => {                
+            var tempost = JSON.parse(JSON.stringify(singlePost));
+            await User.findOne({ '_id': singlePost.createdBy.userId },
+            (err2, res2) => {
+                if (err2) {
+                    console.log("err2 is " + err2);
+                    res.status(500).json({
+                        message: "failed reply deleted",
+                        error : err2
+                    })
+                }
+                else {
+                    if (res2 == null) {
+                        tempost["profile_pic"] = "https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c"
+                        tempost["username"] = "User Deleted"
+                    }
+                    else {
+                        tempost["profile_pic"] = res2.profile_pic
+                        tempost["username"] = res2.username
+                    }
+                }
             })
-        }
-        else{
-            console.log("No audios I guess")
-        }
-    })
-    .catch(err => {
-        res.status(500).json({
-            message: "failed to fetch audios",
-            error: err
+            finalResult.push(tempost)
+        }))
+        .then(()=>{
+            res.status(200).json(finalResult)
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "failed to fetch audios",
+                error: err
+            })
         })
     })
 }
