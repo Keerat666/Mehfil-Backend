@@ -10,6 +10,10 @@ const postSchema = mongoose.Schema({
     type: String,
     match: /\b(image|video|text|audio)\b/
   },
+  category: {
+    type: String,
+    match: /\b(rock|hip_hop|indie|pop|classical|electronic)\b/
+  },
   createdAt: { type: Number },
   createdBy: {
     userId: mongoose.Schema.Types.ObjectId,
