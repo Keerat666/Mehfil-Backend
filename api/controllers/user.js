@@ -449,10 +449,10 @@ exports.forgot_password = (req, res) => {
     .then((result, err) => {
       if (result) {
         if (result.length ==0){
-          res.status(400).json({ "message": "No user with this email found" })
+          res.status(200).json({ "message": "No user with this email found" })
         }
         else if(result[0].provider == "google" || result[0].provider == "facebook") {
-          res.status(400).json({ "message": "provider id is not local", "provider" : result[0].provider})
+          res.status(200).json({ "message": "provider id is not local", "provider" : result[0].provider})
         } 
         else{
           Otp.deleteMany({'userId':result[0]._id})
