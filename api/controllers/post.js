@@ -23,6 +23,7 @@ exports.create_post = (req, res, next) => {
             _id: new mongoose.Types.ObjectId(),
             body: req.body.body,
             type: req.body.type,
+            category: req.body.category,
             createdAt: Date.now(),
             createdBy: {
                 userId: req.body.createdBy.userId,
@@ -282,6 +283,7 @@ exports.delete_post = (req, res, next) => {
 }
 
 exports.get_all_posts = (req, res, next) => {
+    console.log("here in get all")
     const customLabels = {
         totalDocs: "postCount",
         docs: "posts",
@@ -370,7 +372,6 @@ exports.get_all_posts = (req, res, next) => {
                 console.log(err)
                 res.status(500).json({})
             })
-    
         })
         .catch(err => {
             console.log(err)
@@ -797,4 +798,26 @@ exports.getSavedPost = (req, res, next) => {
                 res.send(result)
             }
         })
+}
+
+exports.getAudios = (req, res, next) =>{
+    Post.find({'type': 'audio', 'category':req.body.category})
+    .lean()
+    .exec()
+    .then((result) => {
+        if (result) {
+            res.status(200).json({
+                post : result
+            })
+        }
+        else{
+            console.log("No audios I guess")
+        }
+    })
+    .catch(err => {
+        res.status(500).json({
+            message: "failed to fetch audios",
+            error: err
+        })
+    })
 }
