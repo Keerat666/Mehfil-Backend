@@ -14,7 +14,7 @@ const profileRoutes = require("./api/routes/profile")
 // Mongoose Connection
 mongoose
     .connect(
-        `mongodb://keerat:password1@ds237955.mlab.com:37955/heroku_cc6m2xks`, {
+        `mongodb://admin:devilmaycry7@ds047020.mlab.com:47020/heroku_39hsbgm0`, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true,
