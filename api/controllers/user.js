@@ -9,6 +9,8 @@ const Fuse = require("fuse.js")
 const Otp = require("../models/otp")
 const cloudinary = require("./cloudinary")
 const nodeMailer = require("nodemailer")
+const fs = require("fs")
+
 
 
 exports.user_signup = (req, res, next) => {
@@ -406,7 +408,7 @@ exports.upload_profile = async (req, res, next) => {
   console.log(uploadedObject);
 
   let options = {
-    profile_pic: uploadedObject.url
+    profile_pic: uploadedObject.secure_url
   }
 
   User.update({ '_id': req.params.userId }, options, (err, result) => {
