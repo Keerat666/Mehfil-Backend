@@ -10,6 +10,7 @@ router.patch("/:postId", checkAuth, multer.single("postMedia"), PostController.u
 router.post("/image/:postId", checkAuth, multer.single("postMedia"), PostController.upload_file)
 router.delete("/:postId", checkAuth, PostController.delete_post)
 router.get("/:userId", PostController.get_all_posts)
+router.post("/get/:postId/:userId", PostController.get_post_byid)
 router.post("/:postId/like", checkAuth, PostController.like_post)
 router.post("/:postId/comment", checkAuth, PostController.comment_post)
 router.post("/:commentId/reply", checkAuth, PostController.reply_to_comment)

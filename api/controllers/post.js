@@ -842,3 +842,49 @@ exports.getAudios = (req, res, next) =>{
         })
     })
 }
+
+exports.get_post_byid = (req, res, next) =>{
+    Post.find({'_id': req.params.postId})
+    .lean()
+    .exec()
+    .then(result => {
+
+        var tempost = result[0]
+        var alreadyLiked = false;
+        tempost.likes.map((singleLike) => {
+            if (`${singleLike.likedBy}` == req.params.userId) {
+                alreadyLiked = true;
+            } else {
+                alreadyLiked = false
+            }
+        })
+        tempost["alreadyLiked"] = alreadyLiked
+        return result[0]
+    })
+    .then(result =>{
+        var tempost = result
+        User.findOne({ '_id': result.createdBy.userId },
+                (err2, res2) => {
+                    if (err2) {
+                        console.log("err2 is " + err2);
+                        res.status(500).json({
+                            message: "failed reply deleted",
+                            error : err2
+                        })
+                    }
+                    else {
+                        if (res2 == null) {
+                            tempost["profile_pic"] = "https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c"
+                            tempost["username"] = "User Deleted"
+                        }
+                        else {
+                            tempost["profile_pic"] = res2.profile_pic
+                            tempost["username"] = res2.username
+                            res.status(200).json({
+                                post : result
+                            })
+                        }
+                    }
+                })
+    })
+}
