@@ -23,7 +23,7 @@ exports.uploads = (file, folder) => {
                 overwrite: true,
             },
             (error, result) => {
-                console.log(result);
+                // console.log(result);
 
                 if (error) {
                     reject(error);
