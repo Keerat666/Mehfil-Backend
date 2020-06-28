@@ -408,7 +408,7 @@ exports.upload_profile = async (req, res, next) => {
   console.log(uploadedObject);
 
   let options = {
-    profile_pic: uploadedObject.secure_url
+    profile_pic : uploadedObject.secure_url
   }
 
   User.update({ '_id': req.params.userId }, options, (err, result) => {
@@ -423,6 +423,7 @@ exports.upload_profile = async (req, res, next) => {
       User.findOne({ '_id': req.params.userId }, (err2, res2) => {
 
         console.log("err2 is " + err2);
+        console.log("xxxxxxxxxxxx")
         console.log(res2);
 
         res.send(res2);
