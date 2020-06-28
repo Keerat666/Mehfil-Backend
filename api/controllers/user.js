@@ -398,7 +398,7 @@ exports.upload_profile = async (req, res, next) => {
 
   try {
     uploadedObject = await cloudinary.uploads(path, 'Profile');
-    console.log("cloudinary link : " + uploadedObject);
+    console.log("cloudinary link : " + uploadedObject.secure_url);
 
   } catch (e) {
 
@@ -408,15 +408,14 @@ exports.upload_profile = async (req, res, next) => {
   console.log(uploadedObject);
 
   let options = {
-    profile_pic : uploadedObject.secure_url
+    profile_pic : uploadedObject.url
   }
 
   User.update({ '_id': req.params.userId }, options, (result, err) => {
 
     if (err) {
 
-      console.log(err);
-
+      console.log("error in user.update upload", err);
       res.send("Internal server error");
     } else {
 
