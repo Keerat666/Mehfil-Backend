@@ -406,7 +406,7 @@ exports.upload_profile = async (req, res, next) => {
   console.log(uploadedObject);
 
   let options = {
-    media: uploadedObject.url
+    profile_pic: uploadedObject.url
   }
 
   User.update({ '_id': req.params.userId }, options, (err, result) => {
