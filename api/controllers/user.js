@@ -411,7 +411,7 @@ exports.upload_profile = async (req, res, next) => {
     profile_pic : uploadedObject.secure_url
   }
 
-  User.update({ '_id': req.params.userId }, options, (err, result) => {
+  User.update({ '_id': req.params.userId }, options, (result, err) => {
 
     if (err) {
 
@@ -420,13 +420,16 @@ exports.upload_profile = async (req, res, next) => {
       res.send("Internal server error");
     } else {
 
-      User.findOne({ '_id': req.params.userId }, (err2, res2) => {
+      User.findOne({ '_id': req.params.userId }, (res2, err2) => {
+        if (err2){
+          console.log("err2 is " + err2);
+        }
+        else{
+          console.log("xxxxxxxxxxxx")
+          console.log(res2);
+          res.send(res2);
+        }
 
-        console.log("err2 is " + err2);
-        console.log("xxxxxxxxxxxx")
-        console.log(res2);
-
-        res.send(res2);
       })
     }
   });
