@@ -432,11 +432,9 @@ exports.like_post = (req, res, next) => {
                         }); //end map
 
                         if (alreadyLiked == true) {
-
                             resolve(alreadyLiked);
                         } else {
-
-                            resolve(alreadyLiked);
+                            reject(alreadyLiked);
                         }
                     }
                 }); //end post find
@@ -451,33 +449,11 @@ exports.like_post = (req, res, next) => {
                 )
                     .exec()
                     .then(post => {
-                        console.log(post)
-                        reject("unlike sucessfull")
+                        resolve(post)
                     })
                     .catch(err => {
                         console.log("something terrible had happened..... I guess")
                         console.log(err)
-                    })
-            })
-        } else {
-            return new Promise((resolve, reject) => {
-
-                const like = {
-                    likedBy: req.body.userId,
-                    likedAt: Date.now()
-                }
-
-                Post.findByIdAndUpdate(
-                    req.params.postId, { $push: { likes: like } }, { new: true }
-                )
-                    .exec()
-                    .then(post => {
-                        console.log(post)
-                        resolve("liked successfully")
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        reject("already liked or error")
                     })
             })
         }
@@ -486,11 +462,28 @@ exports.like_post = (req, res, next) => {
     findMyPost()
         .then(updateLikes)
         .then((result) => {
-            res.status(200).json({ message: result });
+            res.status(200).json({ message: "unliked successfully", likecount: result["post"]["likes"].length});
         })
         .catch((err) => {
-            console.log(err)
-            res.send({ message: "Some error ocurred or user already liked" });
+            console.log("errrr", err)
+            const like = {
+                likedBy: req.body.userId,
+                likedAt: Date.now()
+            }
+
+            Post.findByIdAndUpdate(
+                req.params.postId, { $push: { likes: like } }, { new: true }
+            )
+                .exec()
+                .then(post => {
+                    // resolve({message: "liked successfully", post : post})
+                    console.log("yyyy", post)
+                    res.status(200).json({message: "liked successfully", likecount : post["likes"].length})
+                })
+                .catch(err => {
+                    console.log(err);
+                    reject("already liked or error")
+                })
         })
 
 }
