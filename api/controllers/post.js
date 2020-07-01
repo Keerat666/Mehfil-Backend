@@ -420,7 +420,7 @@ exports.like_post = (req, res, next) => {
 
                     if (err) { } else {
                         let alreadyLiked = false;
-                        console.log(obtainedPost.likes)
+                        console.log("obtained.....", obtainedPost.likes)
                         obtainedPost.likes.map((singleLike) => {
 
                             if (`${singleLike.likedBy}` == req.body.userId) {
@@ -449,6 +449,7 @@ exports.like_post = (req, res, next) => {
                 )
                     .exec()
                     .then(post => {
+                        console.log("PULL", post.likes)
                         resolve(post)
                     })
                     .catch(err => {
@@ -462,10 +463,10 @@ exports.like_post = (req, res, next) => {
     findMyPost()
         .then(updateLikes)
         .then((result) => {
-            res.status(200).json({ message: "unliked successfully", likecount: result["post"]["likes"].length});
+            console.log("UNLIKE", result["likes"])
+            res.status(200).json({ message: "unliked successfully", likecount: result["likes"].length-1});
         })
         .catch((err) => {
-            console.log("errrr", err)
             const like = {
                 likedBy: req.body.userId,
                 likedAt: Date.now()
@@ -476,8 +477,8 @@ exports.like_post = (req, res, next) => {
             )
                 .exec()
                 .then(post => {
-                    // resolve({message: "liked successfully", post : post})
-                    console.log("yyyy", post)
+                    console.log("LIKE", post["likes"])
+
                     res.status(200).json({message: "liked successfully", likecount : post["likes"].length})
                 })
                 .catch(err => {
