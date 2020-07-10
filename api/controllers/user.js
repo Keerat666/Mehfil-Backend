@@ -375,7 +375,7 @@ exports.searchPosts = (req, res, next) => {
         res.send(err)
       } else {
         var options = {
-          keys: ['name.firstName', 'email', 'username', 'name.lastName', 'description'],
+          keys: ['name.firstName', 'email', 'username', 'name.lastName'],
           threshold: 0.4
         };
         var fuse = new Fuse(result, options)
@@ -385,7 +385,6 @@ exports.searchPosts = (req, res, next) => {
           res.status(200).json({ "msg": "No such products found" });
         else
           res.status(200).json(fuse_result);
-
       }
     })
 }
