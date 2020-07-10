@@ -640,7 +640,8 @@ exports.like_comment = (req, res, next) => {
                     .then(comment => {
                         console.log("here " + comment)
                         res.status(201).json({
-                            message: "Unliked successfully"
+                            message: "Unliked successfully",
+                            likecount: comment["likes"].length-1
                         })
                     })
                     .catch(err => {
@@ -660,7 +661,8 @@ exports.like_comment = (req, res, next) => {
                     .then(comment => {
                         console.log(comment)
                         res.status(201).json({
-                            message: "comment liked successfully"
+                            message: "comment liked successfully",
+                            likecount: comment["likes"].length
                         })
                     })
                     .catch(err => {
