@@ -12,7 +12,7 @@ const postSchema = mongoose.Schema({
   },
   category: {
     type: String,
-    match: /\b(rock|hip_hop|indie|pop|classical|electronic|edm|podcast|jazz|retro)\b/
+    match: /\b(rock|hiphop|indie|pop|classical|electronic|edm|podcast|jazz|retro)\b/
   },
   createdAt: { type: Number },
   createdBy: {
