@@ -1,14 +1,14 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
 
-const Post = require("../models/post")
-const User = require("../models/user")
+const Post = require('../models/post')
+const User = require('../models/user')
 
 exports.profile_view = (req, res, next) => {
   User.findById(req.params.userId)
     .exec()
     .then(user => {
       console.log(user)
-      Post.find({ "createdBy.userId": req.params.userId })
+      Post.find({ 'createdBy.userId': req.params.userId })
         .sort({ createdAt: -1 })
         .exec()
         .then(posts => {
@@ -23,13 +23,15 @@ exports.profile_view = (req, res, next) => {
             description: user.description,
             profile_pic: user.profile_pic,
             username: user.username,
-            email : user.email
+            email: user.email,
+            profession: user.profession,
+            genre: user.genre
           })
         })
         .catch(err => {
           console.log(err)
           res.status(500).json({
-            message: "there was an error in fetching user profile",
+            message: 'there was an error in fetching user profile',
             error: err
           })
         })
@@ -37,7 +39,7 @@ exports.profile_view = (req, res, next) => {
     .catch(err => {
       console.log(err)
       res.status(500).json({
-        message: "there was an error in fetching user profile",
+        message: 'there was an error in fetching user profile',
         error: err
       })
     })
@@ -48,7 +50,7 @@ exports.profile_view_self = (req, res, next) => {
     .exec()
     .then(user => {
       console.log(user)
-      Post.find({ "createdBy.userId": req.userData.userId })
+      Post.find({ 'createdBy.userId': req.userData.userId })
         .sort({ createdAt: -1 })
         .exec()
         .then(posts => {
@@ -65,7 +67,7 @@ exports.profile_view_self = (req, res, next) => {
         .catch(err => {
           console.log(err)
           res.status(500).json({
-            message: "there was an error in fetching user profile",
+            message: 'there was an error in fetching user profile',
             error: err
           })
         })
@@ -73,7 +75,7 @@ exports.profile_view_self = (req, res, next) => {
     .catch(err => {
       console.log(err)
       res.status(500).json({
-        message: "there was an error in fetching user profile",
+        message: 'there was an error in fetching user profile',
         error: err
       })
     })
@@ -81,7 +83,7 @@ exports.profile_view_self = (req, res, next) => {
 
 exports.profile_update = (req, res, next) => {
   updates = {
-    description: req.body.description,
+    description: req.body.description
   }
   console.log(updates)
 
@@ -96,7 +98,7 @@ exports.profile_update = (req, res, next) => {
     .catch(err => {
       console.log(err)
       res.status(500).json({
-        message: "there was an error in updating user details",
+        message: 'there was an error in updating user details',
         error: err
       })
     })
