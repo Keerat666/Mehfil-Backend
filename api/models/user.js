@@ -26,7 +26,8 @@ const userSchema = mongoose.Schema({
       'https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c'
   },
   profession: [],
-  genre: []
+  genre: [],
+  is_verified: { type: Boolean, default: false }
 })
 
 module.exports = mongoose.model('User', userSchema)

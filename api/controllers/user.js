@@ -82,7 +82,8 @@ exports.user_signup_google = (req, res, next) => {
           email: req.body.email,
           description: req.body.description,
           username: req.body.username,
-          profile_pic: req.body.profile_pic
+          profile_pic: req.body.profile_pic,
+          profession: req.body.profession
         })
         user
           .save()
@@ -121,7 +122,8 @@ exports.user_signup_facebook = (req, res, next) => {
           },
           provider: 'facebook',
           providerId: req.body.providerId,
-          email: req.body.email
+          email: req.body.email,
+          profession: req.body.profession
         })
         user
           .save()
@@ -435,12 +437,10 @@ exports.forgot_password = (req, res) => {
           result[0].provider == 'google' ||
           result[0].provider == 'facebook'
         ) {
-          res
-            .status(200)
-            .json({
-              message: 'provider id is not local',
-              provider: result[0].provider
-            })
+          res.status(200).json({
+            message: 'provider id is not local',
+            provider: result[0].provider
+          })
         } else {
           Otp.deleteMany({ userId: result[0]._id })
             .exec()
