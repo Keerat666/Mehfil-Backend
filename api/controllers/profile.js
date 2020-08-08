@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const Post = require('../models/post')
 const User = require('../models/user')
+const { use } = require('passport')
 
 exports.profile_view = (req, res, next) => {
   User.findById(req.params.userId)
@@ -25,7 +26,8 @@ exports.profile_view = (req, res, next) => {
             username: user.username,
             email: user.email,
             profession: user.profession,
-            genre: user.genre
+            genre: user.genre,
+            is_verified: user.is_verified
           })
         })
         .catch(err => {
@@ -60,6 +62,7 @@ exports.profile_view_self = (req, res, next) => {
             self: true,
             name: user.name,
             dob: user.dob,
+            is_verified: user.is_verified,
             postCount: posts.length,
             posts
           })

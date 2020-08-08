@@ -1,36 +1,38 @@
-const express = require("express")
+const express = require('express')
 const app = express()
-const fs = require("fs")
-const path = require("path")
-const morgan = require("morgan")
-const bodyParser = require("body-parser")
-const mongoose = require("mongoose")
+const fs = require('fs')
+const path = require('path')
+const morgan = require('morgan')
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
 
 // Route Files
-const userRoutes = require("./api/routes/user")
-const postRoutes = require("./api/routes/post")
-const profileRoutes = require("./api/routes/profile")
+const userRoutes = require('./api/routes/user')
+const postRoutes = require('./api/routes/post')
+const profileRoutes = require('./api/routes/profile')
+const verificationRoutes = require('./api/routes/verification')
 
 // Mongoose Connection
 mongoose
-    .connect(
-        `mongodb://admin:devilmaycry7@ds047020.mlab.com:47020/heroku_39hsbgm0`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-            useFindAndModify: false
-        }
-    )
-    .catch(error => console.error(error))
+  .connect(
+    `mongodb://admin:devilmaycry7@ds047020.mlab.com:47020/heroku_39hsbgm0`,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false
+    }
+  )
+  .catch(error => console.error(error))
 
-var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
-        flags: "a"
-    })
-    // Morgan for logging all requests
-app.use(morgan("combined", { stream: accessLogStream }))
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
+  flags: 'a'
+})
+// Morgan for logging all requests
+app.use(morgan('combined', { stream: accessLogStream }))
 
 // Set static files and folders
-app.use("/uploads", express.static("uploads"))
+app.use('/uploads', express.static('uploads'))
 
 // Body parser middleware for making request body easily readable
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -38,46 +40,45 @@ app.use(bodyParser.json())
 
 // CORS Options
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header(
-        "Access-Control-Allow-Header",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    )
-    if (req.method === "OPTIONS") {
-        res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET")
-        return res.status(200).json({})
-    }
-    next()
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Header',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  )
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
+    return res.status(200).json({})
+  }
+  next()
 })
 
 // Routes
-app.get("/", (req, res, next) =>
-    res
+app.get('/', (req, res, next) =>
+  res
     .status(200)
     .send(
-        "Hello there! You have come this far but you won't be able to proceed further" + req.body.name.firstName
-
+      "Hello there! You have come this far but you won't be able to proceed further" +
+        req.body.name.firstName
     )
 )
-app.use("/user", userRoutes)
-app.use("/post", postRoutes)
-app.use("/profile", profileRoutes)
+app.use('/user', userRoutes)
+app.use('/post', postRoutes)
+app.use('/profile', profileRoutes)
+app.use('/verification', verificationRoutes)
 
 // Response for unavailable routes
 app.use((req, res, next) => {
-    const error = new Error("Not found")
-    error.status = 404
-    next(error)
+  const error = new Error('Not found')
+  error.status = 404
+  next(error)
 })
 app.use((error, req, res, next) => {
-    res.status(error.status || 500)
-    res.json({
-        error: {
-            message: error.message
-        }
-    })
+  res.status(error.status || 500)
+  res.json({
+    error: {
+      message: error.message
+    }
+  })
 })
-
-
 
 module.exports = app
