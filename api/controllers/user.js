@@ -38,7 +38,8 @@ exports.user_signup = (req, res, next) => {
               description: req.body.description,
               username: req.body.username,
               profession: req.body.profession,
-              genre: req.body.genre
+              genre: req.body.genre,
+              is_verified: false
             })
             user
               .save()
@@ -83,7 +84,8 @@ exports.user_signup_google = (req, res, next) => {
           description: req.body.description,
           username: req.body.username,
           profile_pic: req.body.profile_pic,
-          profession: req.body.profession
+          profession: req.body.profession,
+          is_verified: false
         })
         user
           .save()
@@ -123,7 +125,8 @@ exports.user_signup_facebook = (req, res, next) => {
           provider: 'facebook',
           providerId: req.body.providerId,
           email: req.body.email,
-          profession: req.body.profession
+          profession: req.body.profession,
+          is_verified: false
         })
         user
           .save()
