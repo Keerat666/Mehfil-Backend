@@ -187,3 +187,20 @@ exports.addVerificationForm = (req, res, next) => {
       }
     })
 }
+
+exports.verificationForm = (req, res, next) => {
+  VerificationForm.find({ _id: req.params.formId })
+    .exec()
+    .then(form => {
+      res.status(200).json({
+        data: form
+      })
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({
+        message: 'there was an error in fetching user profile',
+        error: err
+      })
+    })
+}

@@ -17,10 +17,12 @@ router.patch(
 
 router.get('/allusers', checkAuth, VerificationController.allUsers)
 
-router.get(
+router.post(
   '/addform/:userId',
   checkAuth,
   VerificationController.addVerificationForm
 )
+
+router.get('/form/:formId', checkAuth, VerificationController.verificationForm)
 
 module.exports = router
