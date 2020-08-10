@@ -27,6 +27,7 @@ const userSchema = mongoose.Schema({
   },
   profession: [],
   genre: [],
+  verification_forms: [],
   is_verified: { type: Boolean, default: false }
 })
 

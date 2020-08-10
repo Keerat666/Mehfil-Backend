@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const User = require('../models/user')
+const VerificationForm = require('../models/verificationForm')
 const { use } = require('passport')
 
 exports.check_verification = (req, res, next) => {
@@ -22,19 +23,55 @@ exports.check_verification = (req, res, next) => {
 }
 
 exports.update_verification = (req, res, next) => {
-  updates = {
-    is_verified: req.body.is_verified
+  let status = req.body.status
+  let updates = {}
+  let fromUpdates = {
+    status: status
   }
-  console.log(updates)
 
-  User.findByIdAndUpdate(req.params.userId, { $set: updates }, { new: true })
+  if (status == 'ACCEPTED') {
+    updates = {
+      is_verified: true
+    }
+  } else if (status == 'REJECTED') {
+    updates = {
+      is_verified: false
+    }
+  } else {
+    res.status(404).json({
+      message: 'Status value is invalid'
+    })
+  }
+
+  VerificationForm.findByIdAndUpdate(
+    req.params.fromId,
+    { $set: fromUpdates },
+    { new: true }
+  )
     .exec()
-    .then(user => {
-      console.log(user)
-      res.status(200).json({
-        _id: user._id,
-        is_verified: user.is_verified
-      })
+    .then(form => {
+      console.log(form)
+      User.findByIdAndUpdate(
+        { _id: form.user_id },
+        { $set: updates },
+        { new: true }
+      )
+        .exec()
+        .then(user => {
+          console.log(user)
+          res.status(200).json({
+            _id: user._id,
+            last_from_status: form.status,
+            is_verified: user.is_verified
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).json({
+            message: 'there was an error in updating user details',
+            error: err
+          })
+        })
     })
     .catch(err => {
       console.log(err)
@@ -46,25 +83,10 @@ exports.update_verification = (req, res, next) => {
 }
 
 exports.allUsers = (req, res, next) => {
-  User.find({})
+  VerificationForm.find({})
     .exec()
     .then(users => {
-      let allusers = []
-      for (u in users) {
-        allusers.push({
-          user_id: users[u]['_id'],
-          is_verified: users[u]['is_verified'],
-          name: users[u]['name'],
-          profession: users[u]['profession']
-        })
-      }
-      if (allusers.length > 0) {
-        res.status(200).json({ data: allusers })
-      } else {
-        res.status(204).json({
-          message: 'No user data found'
-        })
-      }
+      res.status(200).json({ data: users })
     })
     .catch(err => {
       console.log(err)
@@ -72,5 +94,85 @@ exports.allUsers = (req, res, next) => {
         message: 'Something went wrong',
         error: err
       })
+    })
+}
+
+exports.addVerificationForm = (req, res, next) => {
+  User.find({ _id: req.params.userId })
+    .lean()
+    .exec()
+    .then((result, err) => {
+      if (result) {
+        let userid = result[0]['_id']
+        let email = result[0]['email']
+        let forms = result[0]['verification_forms']
+
+        form = new VerificationForm({
+          _id: new mongoose.Types.ObjectId(),
+          user_id: userid,
+          created_at: Date.now(),
+          email: email,
+          status: 'PENDING',
+          facebook: req.body.facebook,
+          instagram: req.body.instagram,
+          work_link: req.body.work_link
+        })
+
+        forms.push(form._id)
+
+        form
+          .save()
+          .then(form => {
+            console.log(form)
+
+            updates = {
+              verification_forms: forms,
+              is_verified: false
+            }
+
+            console.log(updates)
+
+            User.findOneAndUpdate(
+              { _id: userid },
+              { $set: updates },
+              { new: true }
+            )
+              .exec()
+              .then(user => {
+                console.log(user)
+
+                res.status(201).json({
+                  message: 'Created form',
+                  from: {
+                    _id: form._id,
+                    user_id: form.user_id,
+                    created_at: form.created_at,
+                    email: form.email,
+                    status: form.status,
+                    facebook: form.facebook,
+                    instagram: form.instagram,
+                    work_link: form.work_link
+                  }
+                })
+              })
+              .catch(err => {
+                console.log(err)
+                res.status(500).json({
+                  message: 'Failed to create post',
+                  error: err
+                })
+              })
+          })
+          .catch(err => {
+            console.log(err)
+            res.status(500).json({
+              message: 'Failed to create post',
+              error: err
+            })
+          })
+      } else {
+        console.log('error' + err)
+        res.send(err)
+      }
     })
 }
