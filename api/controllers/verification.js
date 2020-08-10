@@ -4,14 +4,25 @@ const VerificationForm = require('../models/verificationForm')
 const { use } = require('passport')
 
 exports.check_verification = (req, res, next) => {
-  User.findById(req.params.userId)
+  VerificationForm.find({
+    user_id: req.params.userId
+  })
     .exec()
-    .then(user => {
-      console.log(user)
-      res.status(200).json({
-        _id: user._id,
-        is_verified: user.is_verified
-      })
+    .then(forms => {
+      forms.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      let requiredData = forms[0]
+      if (requiredData != null) {
+        res.status(200).json({
+          last_form_status: requiredData.status
+        })
+      } else {
+        res.status(200).json({
+          last_form_status: 'NEW'
+        })
+      }
     })
     .catch(err => {
       console.log(err)
