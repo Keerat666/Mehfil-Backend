@@ -15,7 +15,7 @@ router.patch(
   VerificationController.update_verification
 )
 
-router.get('/allusers', checkAuth, VerificationController.allUsers)
+router.get('/allforms', checkAuth, VerificationController.allUsers)
 
 router.post(
   '/addform/:userId',
