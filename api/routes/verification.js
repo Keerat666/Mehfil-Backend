@@ -9,7 +9,7 @@ router.get(
   checkAuth,
   VerificationController.check_verification
 )
-router.patch(
+router.put(
   '/update/:fromId',
   checkAuth,
   VerificationController.update_verification

@@ -5,6 +5,15 @@ const VerificationFormSchema = mongoose.Schema({
   user_id: { type: String },
   created_at: { type: Date },
   email: { type: String },
+  name: {
+    firstName: { type: String },
+    lastName: { type: String }
+  },
+  profile_pic: {
+    type: String,
+    default:
+      'https://lh3.googleusercontent.com/a-/AAuE7mBZOJf8xINXnRo1jQYYlIpMdS5CNVlermJMrlazpw=s96-c'
+  },
   status: {
     type: String,
     enum: ['PENDING', 'ACCEPTED, REJECTED'],

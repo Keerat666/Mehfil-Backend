@@ -117,11 +117,19 @@ exports.addVerificationForm = (req, res, next) => {
         let userid = result[0]['_id']
         let email = result[0]['email']
         let forms = result[0]['verification_forms']
+        let firstName = result[0]['name']['firstName']
+        let lastName = result[0]['name']['lastName']
+        let profilePic = result[0]['profile_pic']
 
         form = new VerificationForm({
           _id: new mongoose.Types.ObjectId(),
           user_id: userid,
           created_at: Date.now(),
+          name: {
+            firstName: firstName,
+            lastName: lastName
+          },
+          profile_pic: profilePic,
           email: email,
           status: 'PENDING',
           facebook: req.body.facebook,
