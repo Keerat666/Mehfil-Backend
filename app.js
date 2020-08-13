@@ -31,8 +31,7 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
 })
 
 // Enablish CORS preflight for all endpoints
-app.options('*', cors())
-
+app.use(cors())
 // Morgan for logging all requests
 app.use(morgan('combined', { stream: accessLogStream }))
 
