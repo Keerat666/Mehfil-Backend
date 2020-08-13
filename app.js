@@ -5,6 +5,7 @@ const path = require('path')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+var cors = require('cors')
 
 // Route Files
 const userRoutes = require('./api/routes/user')
@@ -28,6 +29,10 @@ mongoose
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
   flags: 'a'
 })
+
+// Enablish CORS preflight for all endpoints
+app.options('*', cors())
+
 // Morgan for logging all requests
 app.use(morgan('combined', { stream: accessLogStream }))
 
@@ -39,18 +44,18 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // CORS Options
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header(
-    'Access-Control-Allow-Header',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  )
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
-    return res.status(200).json({})
-  }
-  next()
-})
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header(
+//     'Access-Control-Allow-Header',
+//     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+//   )
+//   if (req.method === 'OPTIONS') {
+//     res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
+//     return res.status(200).json({})
+//   }
+//   next()
+// })
 
 // Routes
 app.get('/', (req, res, next) =>

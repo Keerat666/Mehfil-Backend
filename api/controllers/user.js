@@ -380,13 +380,19 @@ exports.searchPosts = (req, res, next) => {
           keys: ['name.firstName', 'email', 'username', 'name.lastName'],
           threshold: 0.4
         }
+
         var fuse = new Fuse(result, options)
 
         let fuse_result = fuse.search(req.params.query)
+        console.log(req.params.query)
+        console.log(fuse_result)
         if (fuse_result === [])
           res.status(200).json({ msg: 'No such products found' })
         else res.status(200).json(fuse_result)
       }
+    })
+    .catch(e => {
+      res.status(404).json({ message: 'Something went wrong', error: '' + e })
     })
 }
 
