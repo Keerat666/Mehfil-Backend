@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate-v2");
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const postSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -10,10 +10,7 @@ const postSchema = mongoose.Schema({
     type: String,
     match: /\b(image|video|text|audio)\b/
   },
-  category: {
-    type: String,
-    match: /\b(rock|hiphop|indie|pop|classical|electronic|edm|podcast|jazz|retro)\b/
-  },
+  category: [],
   createdAt: { type: Number },
   createdBy: {
     userId: mongoose.Schema.Types.ObjectId,
@@ -25,9 +22,9 @@ const postSchema = mongoose.Schema({
   likes: [],
   saved: [],
   comments: [],
-  url: {type: String}
-});
+  url: { type: String }
+})
 
-postSchema.plugin(mongoosePaginate);
+postSchema.plugin(mongoosePaginate)
 
-module.exports = mongoose.model("Post", postSchema);
+module.exports = mongoose.model('Post', postSchema)
