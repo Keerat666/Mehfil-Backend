@@ -14,6 +14,7 @@ exports.check_verification = (req, res, next) => {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
       let requiredData = forms[0]
+      console.log(requiredData)
       if (requiredData != null) {
         res.status(200).json({
           last_form_status: requiredData.status

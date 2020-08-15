@@ -447,12 +447,10 @@ exports.like_post = (req, res, next) => {
     .then(updateLikes)
     .then(result => {
       console.log('UNLIKE', result['likes'])
-      res
-        .status(200)
-        .json({
-          message: 'unliked successfully',
-          likecount: result['likes'].length - 1
-        })
+      res.status(200).json({
+        message: 'unliked successfully',
+        likecount: result['likes'].length - 1
+      })
     })
     .catch(err => {
       const like = {
@@ -469,12 +467,10 @@ exports.like_post = (req, res, next) => {
         .then(post => {
           console.log('LIKE', post['likes'])
 
-          res
-            .status(200)
-            .json({
-              message: 'liked successfully',
-              likecount: post['likes'].length
-            })
+          res.status(200).json({
+            message: 'liked successfully',
+            likecount: post['likes'].length
+          })
         })
         .catch(err => {
           console.log(err)
@@ -762,7 +758,7 @@ exports.reportPost = (req, res, next) => {
 
   Post.findByIdAndUpdate(
     req.params.postId,
-    { $push: { report: reported } },
+    { $push: { reports: reported } },
     { new: true }
   )
     .exec()
@@ -879,5 +875,20 @@ exports.get_post_byid = (req, res, next) => {
           }
         }
       })
+    })
+}
+
+exports.reportedPosts = (req, res, next) => {
+  Post.find({ reports: { $exists: true, $not: { $size: 0 } } })
+    .exec()
+    .then(posts => {
+      // console.log(posts)
+      res.status(201).json({
+        data: posts
+      })
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({})
     })
 }

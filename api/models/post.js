@@ -22,7 +22,8 @@ const postSchema = mongoose.Schema({
   likes: [],
   saved: [],
   comments: [],
-  url: { type: String }
+  url: { type: String },
+  reports: []
 })
 
 postSchema.plugin(mongoosePaginate)
