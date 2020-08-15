@@ -751,7 +751,7 @@ exports.savePost = (req, res, next) => {
 
 exports.reportPost = (req, res, next) => {
   const reported = {
-    reportedBy: req.body.userId,
+    reportedBy: req.params.userId,
     reportedAt: Date.now(),
     reportedFor: req.body.for
   }
