@@ -129,3 +129,26 @@ exports.profile_update_profession = (req, res, next) => {
       })
     })
 }
+
+exports.profile_update_genre = (req, res, next) => {
+  updates = {
+    genre: req.body.genre
+  }
+  console.log(updates)
+
+  User.findByIdAndUpdate(req.params.userId, { $set: updates }, { new: true })
+    .exec()
+    .then(user => {
+      console.log(user)
+      res.status(200).json({
+        user
+      })
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({
+        message: 'there was an error in updating user details',
+        error: err
+      })
+    })
+}

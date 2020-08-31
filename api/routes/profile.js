@@ -12,5 +12,10 @@ router.patch(
   checkAuth,
   ProfileController.profile_update_profession
 )
+router.patch(
+  '/update/genre/:userId',
+  checkAuth,
+  ProfileController.profile_update_genre
+)
 
 module.exports = router
