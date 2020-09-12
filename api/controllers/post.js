@@ -172,14 +172,28 @@ exports.create_post = (req, res, next) => {
 }
 
 exports.upload_file = async (req, res, next) => {
+  const postID = req.params.postId
   const { path } = req.file
   let uploadedObject = {}
-
   try {
     uploadedObject = await cloudinary.uploads(path, 'Posts')
     console.log('cloudinary link : ' + uploadedObject)
   } catch (e) {
-    res.send('Clouinary upload failed' + e)
+    Post.findByIdAndDelete(postID)
+      .exec()
+      .then(result => {
+        console.log(result)
+        res.status(400).json({
+          message: 'upload failed, post deleted'
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).json({
+          message: 'upload failed and failed to delete post',
+          error: err
+        })
+      })
   }
 
   console.log(uploadedObject)
@@ -188,16 +202,27 @@ exports.upload_file = async (req, res, next) => {
     media: uploadedObject.url
   }
 
-  Post.update({ _id: req.params.postId }, options, (err, result) => {
+  Post.update({ _id: postID }, options, (err, result) => {
     if (err) {
-      console.log(err)
-
-      res.send('Internal server error')
+      Post.findByIdAndDelete(postID)
+        .exec()
+        .then(result => {
+          console.log(result)
+          res.status(400).json({
+            message: 'upload failed, post deleted'
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).json({
+            message: 'upload failed and failed to delete post',
+            error: err
+          })
+        })
     } else {
-      Post.findOne({ _id: req.params.postId }, (err2, res2) => {
+      Post.findOne({ _id: postID }, (err2, res2) => {
         console.log('err2 is ' + err2)
         console.log(res2)
-
         res.send(res2)
       })
     }
