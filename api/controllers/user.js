@@ -473,7 +473,7 @@ exports.forgot_password = (req, res) => {
                     auth: {
                       // should be replaced with real sender's account
                       user: 'mehfilpro@gmail.com',
-                      pass: 'devilmaycry@7'
+                      pass: 'knfnskrbpcwvxqpt'
                     }
                   })
                   let mailOptions = {
