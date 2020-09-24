@@ -45,8 +45,17 @@ exports.user_signup = (req, res, next) => {
               .save()
               .then(result => {
                 console.log(result)
+                const token = jwt.sign(
+                  {
+                    email: result.email,
+                    userId: result._id,
+                    name: result.name
+                  },
+                  process.env.JWT_KEY
+                )
                 res.status(201).json({
                   message: 'User created',
+                  token: token,
                   user_id: result._id
                 })
               })
@@ -91,8 +100,17 @@ exports.user_signup_google = (req, res, next) => {
           .save()
           .then(result => {
             console.log(result)
+            const token = jwt.sign(
+              {
+                email: result.email,
+                userId: result._id,
+                name: result.name
+              },
+              process.env.JWT_KEY
+            )
             res.status(201).json({
               message: 'User created',
+              token: token,
               user_id: result._id
             })
           })
@@ -132,8 +150,18 @@ exports.user_signup_facebook = (req, res, next) => {
           .save()
           .then(result => {
             console.log(result)
+            const token = jwt.sign(
+              {
+                email: result.email,
+                userId: result._id,
+                name: result.name
+              },
+              process.env.JWT_KEY
+            )
             res.status(201).json({
-              message: 'User created'
+              message: 'User created',
+              token: token,
+              user_id: result._id
             })
           })
           .catch(err => {
