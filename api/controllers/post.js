@@ -364,7 +364,12 @@ exports.get_all_posts = (req, res, next) => {
             }
           )
 
-          finalResult.push(tempost)
+          if (tempost.media != null) {
+            finalResult.push(tempost)
+            console.log('added  :' + tempost.media)
+          } else {
+            console.log('undefined  :' + tempost.media)
+          }
         })
       )
         .then(() => {
