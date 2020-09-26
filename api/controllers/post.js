@@ -742,7 +742,9 @@ exports.getComments = (req, res, next) => {
 }
 
 exports.getPostByUser = (req, res, next) => {
-  Post.find({ $and: [{ 'createdBy.userId': req.params.userId }] })
+  Post.find({
+    $and: [{ 'createdBy.userId': req.params.userId, media: { $ne: null } }]
+  })
     .lean()
     .exec((err, result) => {
       if (err) {
