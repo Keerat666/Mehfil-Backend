@@ -16,7 +16,7 @@ const verificationRoutes = require('./api/routes/verification')
 // Mongoose Connection
 mongoose
   .connect(
-    `mongodb://admin:devilmaycry7@ds047020.mlab.com:47020/heroku_39hsbgm0`,
+    `mongodb+srv://MehfilPro:blindingLights@cluster0.fmsec.mongodb.net/Mehfil?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
