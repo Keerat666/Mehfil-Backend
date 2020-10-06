@@ -213,3 +213,59 @@ exports.verificationForm = (req, res, next) => {
       })
     })
 }
+
+exports.upload_file = async (req, res, next) => {
+  const formId = req.params.formId
+  const { path } = req.file
+  let uploadedObject = {}
+  try {
+    uploadedObject = await cloudinary.uploads(path, 'Verifications')
+    console.log('cloudinary link : ' + uploadedObject)
+  } catch (e) {
+    VerificationForm.findByIdAndDelete(formId)
+      .exec()
+      .then(result => {
+        console.log(result)
+        res.status(400).json({
+          message: 'upload failed, post deleted'
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).json({
+          message: 'upload failed and failed to delete post',
+          error: err
+        })
+      })
+  }
+
+  console.log(uploadedObject)
+
+  let options = {
+    verification_photo: uploadedObject.url
+  }
+
+  VerificationForm.update({ _id: formId }, options, (err, result) => {
+    if (err) {
+      VerificationForm.findByIdAndDelete(formId)
+        .exec()
+        .then(result => {
+          console.log(result)
+          res.status(400).json({
+            message: 'upload failed, post deleted'
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(500).json({
+            message: 'upload failed and failed to delete post',
+            error: err
+          })
+        })
+    } else {
+      VerificationForm.findOne({ _id: formId }, (err2, res2) => {
+        res.send({ message: 'success' })
+      })
+    }
+  })
+}

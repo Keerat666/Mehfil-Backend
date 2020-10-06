@@ -19,6 +19,9 @@ const VerificationFormSchema = mongoose.Schema({
     enum: ['PENDING', 'ACCEPTED, REJECTED'],
     default: 'PENDING'
   },
+  verification_photo: {
+    type: String
+  },
   facebook: { type: String },
   instagram: { type: String },
   work_link: { type: String }

@@ -23,6 +23,13 @@ router.post(
   VerificationController.addVerificationForm
 )
 
+router.post(
+  '/image/:formId',
+  checkAuth,
+  multer.single('postMedia'),
+  VerificationController.upload_file
+)
+
 router.get('/form/:formId', checkAuth, VerificationController.verificationForm)
 
 module.exports = router
