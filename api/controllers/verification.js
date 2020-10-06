@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const cloudinary = require('./cloudinary')
 const User = require('../models/user')
 const VerificationForm = require('../models/verificationForm')
 const { use } = require('passport')
