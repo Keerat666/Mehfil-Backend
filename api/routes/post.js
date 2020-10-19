@@ -23,7 +23,7 @@ router.post(
   multer.single('postMedia'),
   PostController.upload_file
 )
-router.delete('/:postId', checkAuth, PostController.delete_post)
+router.delete('/:postId', PostController.delete_post)
 router.get('/:userId', checkAuth, PostController.get_all_posts)
 router.post('/get/:postId/:userId', checkAuth, PostController.get_post_byid)
 router.post('/:postId/like', checkAuth, PostController.like_post)
@@ -36,6 +36,6 @@ router.get('/postUser/:userId', checkAuth, PostController.getPostByUser)
 router.post('/save/:postId/:userId', checkAuth, PostController.savePost)
 router.post('/report/:postId/:userId', checkAuth, PostController.reportPost)
 router.get('/savedpost/:userId', checkAuth, PostController.getSavedPost)
-router.get('/reported/posts', checkAuth, PostController.reportedPosts)
+router.get('/reported/posts', PostController.reportedPosts)
 
 module.exports = router

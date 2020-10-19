@@ -9,13 +9,9 @@ router.get(
   checkAuth,
   VerificationController.check_verification
 )
-router.put(
-  '/update/:fromId',
-  checkAuth,
-  VerificationController.update_verification
-)
+router.put('/update/:fromId', VerificationController.update_verification)
 
-router.get('/allforms', checkAuth, VerificationController.allUsers)
+router.get('/allforms', VerificationController.allUsers)
 
 router.post(
   '/addform/:userId',
